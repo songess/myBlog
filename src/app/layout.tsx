@@ -1,11 +1,20 @@
-import type { Metadata } from "next";
-import "./globals.css";
+import type { Metadata } from 'next';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "블로그 만들기",
-  description: "블로그 만들기",
+  title: 'My Blog',
+  description: 'Welcome to my blog!',
   icons: {
     icon: '/png/beulping.png',
+  },
+  openGraph: {
+    title: 'Blog',
+    images: [
+      {
+        url: '/png/beulping.png',
+      },
+    ],
+    type: 'website',
   },
 };
 
@@ -16,10 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="kr">
-      <body
-      >
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
