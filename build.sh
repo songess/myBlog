@@ -1,5 +1,5 @@
 !/bin/sh
 cd ../
 mkdir output
-cp -R ./Beul-Ping/* ./output
-cp -R ./output ./Beul-Ping/
+cp -R ./blog/* ./output
+cp -R ./output ./blog/
