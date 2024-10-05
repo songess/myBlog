@@ -1,5 +1,5 @@
 'use client';
-import BlogHeader from '@/components/BlogHeader';
+import BlogHeader from '@/components/all/BlogHeader';
 import HomeMain from '@/components/HomeMain';
 
 export default function Page() {
