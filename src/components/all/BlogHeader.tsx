@@ -1,14 +1,18 @@
 'use client';
 import { Input } from '@/components/ui/input';
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 import SearchSVG from '@public/svg/search.svg';
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function BlogHeader() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+  console.log(pathname);
 
   useEffect(() => {
     setMounted(true);
@@ -17,22 +21,45 @@ export default function BlogHeader() {
   return (
     <header className="container mx-auto px-4 py-4 flex items-center justify-between">
       <div className="flex items-center space-x-4">
-        <span className="text-2xl cursor-pointer">🎃</span>
+        <Link className="text-2xl cursor-pointer" href="/">
+          🎃
+        </Link>
         <nav>
           <ul className="flex">
             <li>
-              <Button className="font-medium text-base" variant="ghost">
-                About
+              <Button
+                className={
+                  pathname === '/about'
+                    ? 'font-bold text-base'
+                    : 'font-medium text-base'
+                }
+                variant="ghost"
+              >
+                <Link href="/about">About</Link>
               </Button>
             </li>
             <li>
-              <Button className="font-medium text-base" variant="ghost">
-                Blog
+              <Button
+                className={
+                  pathname === '/blog'
+                    ? 'font-bold text-base'
+                    : 'font-medium text-base'
+                }
+                variant="ghost"
+              >
+                <Link href="/blog">Blog</Link>
               </Button>
             </li>
             <li>
-              <Button className="font-medium text-base" variant="ghost">
-                Snippets
+              <Button
+                className={
+                  pathname === '/snippets'
+                    ? 'font-bold text-base'
+                    : 'font-medium text-base'
+                }
+                variant="ghost"
+              >
+                <Link href="/snippets">Snippets</Link>
               </Button>
             </li>
           </ul>
