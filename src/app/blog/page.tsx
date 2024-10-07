@@ -1,18 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import BlogHeader from '@/components/all/BlogHeader';
 import { DUMMYposts } from '@/constant/data';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function BlogPage() {
   const router = useRouter();
@@ -26,8 +20,6 @@ export default function BlogPage() {
 
   return (
     <div className="container mx-auto pb-8">
-      <BlogHeader />
-
       <Tabs
         defaultValue="All"
         className="mb-8 w-fit"
@@ -42,24 +34,33 @@ export default function BlogPage() {
         </TabsList>
       </Tabs>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filteredPosts.map((post) => (
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {filteredPosts.map((post, index) => (
           <Card
-            key={post.id}
-            className="cursor-pointer transform transition-transform duration-300 hover:scale-105"
+            key={index}
+            className="cursor-pointer"
             onClick={() => {
               router.push(`/post/${post.id}`);
             }}
           >
-            <CardHeader>
-              <CardTitle>{post.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">{post.excerpt}</p>
+            <CardContent className="p-0">
+              <div className="relative overflow-hidden h-[192px] w-full">
+                <Image
+                  src={'/png/beulping.png'}
+                  alt="썸네일"
+                  className="object-cover transform transition-transform duration-300 hover:scale-105"
+                  fill
+                />
+              </div>
             </CardContent>
-            <CardFooter className="flex justify-between items-center">
-              <Badge variant="secondary">{post.category}</Badge>
-              <time className="text-sm text-muted-foreground">{post.date}</time>
+            <CardFooter className="flex flex-col items-start p-4 gap-4 pt-[24px]">
+              <h3 className="font-semibold line-clamp-1">{post.title}</h3>
+              <div className="flex items-center justify-between w-full">
+                <Badge variant="secondary">{post.category}</Badge>
+                <time className="text-sm text-muted-foreground">
+                  {post.date}
+                </time>
+              </div>
             </CardFooter>
           </Card>
         ))}

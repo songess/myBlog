@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
-import BlogHeader from '@/components/all/BlogHeader';
 import { DUMMYsnippets } from '@/constant/data';
+import { useRouter } from 'next/navigation';
 
 export default function SnippetsPage() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const snippets = DUMMYsnippets;
@@ -31,9 +32,7 @@ export default function SnippetsPage() {
   };
 
   return (
-    <div className="container mx-auto pb-8">
-      <BlogHeader />
-
+    <div className="container mx-auto pb-8 h-full">
       <div className="mb-6 space-y-4">
         <Input
           type="search"
@@ -79,7 +78,13 @@ export default function SnippetsPage() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredSnippets.map((snippet) => (
-          <Card key={snippet.id} className="flex flex-col">
+          <Card
+            key={snippet.id}
+            className="flex flex-col cursor-pointer hover:shadow-md"
+            onClick={() => {
+              router.push(`/snippets/${snippet.id}`);
+            }}
+          >
             <CardHeader>
               <CardTitle className="text-lg">{snippet.title}</CardTitle>
             </CardHeader>

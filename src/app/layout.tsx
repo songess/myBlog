@@ -27,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="kr" suppressHydrationWarning>
-      <body className='pt-[68px]'>
+      <body className='pt-[70px]'>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <BlogHeader />
           {children}
