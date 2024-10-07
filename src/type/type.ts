@@ -5,6 +5,7 @@ export type Post = {
   excerpt: string;
   date: string;
   category: 'All' | '운영체제' | 'FE' | 'CS' | '일상';
+  image: string;
 };
 
 // 스니펫 타입 정의

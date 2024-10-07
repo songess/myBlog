@@ -8,6 +8,7 @@ export const DUMMYposts: Post[] = [
     category: '일상',
     excerpt: '방학을 보내며 있었던 일들을 되돌아보는 시간',
     id: '1',
+    image: '/png/beulping.png',
   },
   {
     date: '2024.09.15',
@@ -15,13 +16,15 @@ export const DUMMYposts: Post[] = [
     category: '일상',
     excerpt: '추석 연휴에 핀토스를 하고있는 나를 보며',
     id: '2',
+    image: '/png/beulping.png',
   },
   {
     date: '2024.09.16',
-    title: '그들이 온다.',
+    title: '그들이 온다아ㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏ',
     id: '3',
     category: '일상',
     excerpt: '그들이 온다.',
+    image: '/png/beulping.png',
   },
   {
     date: '2023.09.20',
@@ -29,6 +32,7 @@ export const DUMMYposts: Post[] = [
     category: '일상',
     excerpt: '유연한 변화를 위해 필요한 것은 무엇일까?',
     id: '4',
+    image: '/png/beulping.png',
   },
   {
     id: '5',
@@ -36,6 +40,7 @@ export const DUMMYposts: Post[] = [
     excerpt: '리액트 훅스의 모든 것을 알아봅니다.',
     date: '2023-10-15',
     category: 'FE',
+    image: '/png/beulping.png',
   },
   {
     id: '6',
@@ -43,6 +48,7 @@ export const DUMMYposts: Post[] = [
     excerpt: '프로세스 관리 기법에 대해 살펴봅니다.',
     date: '2023-10-10',
     category: '운영체제',
+    image: '/png/beulping.png',
   },
   {
     id: '7',
@@ -50,6 +56,7 @@ export const DUMMYposts: Post[] = [
     excerpt: 'TCP/IP 프로토콜의 동작 원리를 설명합니다.',
     date: '2023-10-05',
     category: 'CS',
+    image: '/png/beulping.png',
   },
   {
     id: '8',
@@ -57,6 +64,7 @@ export const DUMMYposts: Post[] = [
     excerpt: 'Promise와 async/await에 대해 알아봅니다.',
     date: '2023-09-30',
     category: 'FE',
+    image: '/png/beulping.png',
   },
   {
     id: '9',
@@ -64,6 +72,7 @@ export const DUMMYposts: Post[] = [
     excerpt: '운영체제의 메모리 관리 기법을 소개합니다.',
     date: '2023-09-25',
     category: '운영체제',
+    image: '/png/beulping.png',
   },
   {
     id: '10',
@@ -71,6 +80,7 @@ export const DUMMYposts: Post[] = [
     excerpt: '다양한 정렬 알고리즘의 원리와 성능을 비교합니다.',
     date: '2023-09-20',
     category: 'CS',
+    image: '/png/beulping.png',
   },
 ];
 
