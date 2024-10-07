@@ -2,8 +2,7 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Github, Linkedin, Mail } from 'lucide-react';
-import BlogHeader from '@/components/all/BlogHeader';
+import { Github, Linkedin, Mail, ExternalLink } from 'lucide-react';
 
 export default function About() {
   const skills = [
@@ -17,10 +16,33 @@ export default function About() {
     'Java',
   ];
 
+  const projects = [
+    {
+      title: '프로젝트 1',
+      description: '이 프로젝트에 대한 간단한 설명입니다.',
+      technologies: ['React', 'Node.js'],
+      link: 'https://naver.com',
+      image: '/png/beulping.png',
+    },
+    {
+      title: '프로젝트 2',
+      description: '두 번째 프로젝트',
+      technologies: ['Next.js', 'TypeScript'],
+      link: 'https://google.com',
+      image: '/png/beulping.png',
+    },
+    {
+      title: '프로젝트 3',
+      description: '세 번째 프로젝트',
+      technologies: ['React', 'TailwindCSS'],
+      link: 'https://instagram.com',
+      image: '/png/beulping.png',
+    },
+  ];
+
   return (
     <div className="container mx-auto pb-8 relative">
-      <BlogHeader />
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <div className="flex flex-col md:flex-row items-center md:items-start mb-8 space-y-4 md:space-y-0 md:space-x-8">
           <Image
             src="/png/beulping.png"
@@ -64,6 +86,50 @@ export default function About() {
             </ul>
           </CardContent>
         </Card>
+
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold mb-6">프로젝트</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {projects.map((project, index) => (
+              <div
+                key={index}
+                className="bg-card rounded-lg overflow-hidden shadow-lg transition-all hover:shadow-xl"
+              >
+                <Image
+                  src={project.image}
+                  alt={project.title}
+                  width={300}
+                  height={200}
+                  className="w-full h-48 object-cover"
+                />
+                <div className="p-4">
+                  <h3 className="text-xl font-semibold mb-2">
+                    {project.title}
+                  </h3>
+                  <p className="text-muted-foreground mb-4">
+                    {project.description}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {project.technologies.map((tech, techIndex) => (
+                      <Badge key={techIndex} variant="secondary">
+                        {tech}
+                      </Badge>
+                    ))}
+                  </div>
+                  <Button variant="outline" className="w-full" asChild>
+                    <a
+                      href={project.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      프로젝트 보기 <ExternalLink className="ml-2 h-4 w-4" />
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <Card>
           <CardContent className="p-6">
