@@ -41,7 +41,7 @@ export default function About() {
   ];
 
   return (
-    <div className="container mx-auto pb-8 relative">
+    <div className="container mx-auto pb-8 relative px-4">
       <div className="max-w-4xl mx-auto">
         <div className="flex flex-col md:flex-row items-center md:items-start mb-8 space-y-4 md:space-y-0 md:space-x-8">
           <Image

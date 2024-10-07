@@ -32,7 +32,7 @@ export default function SnippetsPage() {
   };
 
   return (
-    <div className="container mx-auto pb-8 h-full">
+    <div className="container mx-auto pb-8 h-full px-4">
       <div className="mb-6 space-y-4">
         <Input
           type="search"

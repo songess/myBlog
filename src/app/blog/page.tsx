@@ -19,7 +19,7 @@ export default function BlogPage() {
       : posts.filter((post) => post.category === activeTab);
 
   return (
-    <div className="container mx-auto pb-8">
+    <div className="container mx-auto pb-8 px-4">
       <Tabs
         defaultValue="All"
         className="mb-8 w-fit"
