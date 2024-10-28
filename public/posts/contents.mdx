@@ -1,10 +1,21 @@
 ---
-title: "안녕하세요"
+title: '안녕하세요'
 date: 2024-10-07
 desc: FE 개발자라면 티스토리 말고 개인 블로그 하나쯤은,,
 thumbnail: /png/beulping.png
 ---
 
-#### 환영 
- 
+#### 환영
+
 안녕하세요. 이 글은 mdx파일로 작성되었습니다.
+
+```js
+import { parsePostDetail } from '@/lib/parsingPost';
+import React from 'react';
+
+export default async function Page() {
+  const { data, content } = await parsePostDetail('contents.mdx');
+  // console.log(data, content);
+  return <div>{content}</div>;
+}
+```
