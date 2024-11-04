@@ -277,7 +277,7 @@ h6 {
 *::-webkit-scrollbar-thumb {
   height: 30%;
   border-radius: 10px;
-  background: #e0e2e6;
+  background: #c0c1c5;
   &:horizontal {
     width: 20%;
   }
