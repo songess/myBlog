@@ -11,14 +11,14 @@ interface PostMatter {
   image: string;
   excerpt: string;
   id: string;
-  category: string;
+  category: 'All' | '운영체제' | 'FE' | 'CS' | '일상';
 }
 
-interface Post extends PostMatter {
+export interface Post extends PostMatter {
   content: string;
 }
 
-const BASE_PATH = 'public/posts';
+const BASE_PATH = 'public/articles';
 const POSTS_PATH = path.join(process.cwd(), BASE_PATH);
 
 // 포스트의 메타데이터 파싱
@@ -65,7 +65,7 @@ const sortPostList = (PostList: Post[]) => {
 };
 
 // 정렬된 포스트 리스트 반환함수
-export const getSortedPostList = async (category?: string) => {
+export const getSortedPostList = async (category?: string): Promise<Post[]> => {
   const postList = await getPostList(category);
   // console.log('postlist', postList);
   return sortPostList(postList);
