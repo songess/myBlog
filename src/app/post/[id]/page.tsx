@@ -1,13 +1,15 @@
 import PostBody from '@/components/ui/PostBody';
-import { parsePostDetail } from '@/lib/parsingPost';
+import { getSortedPostList, parsePost  } from '@/lib/parsingPost';
 import React from 'react';
 
-export default async function Page() {
-  const { data, content } = await parsePostDetail('contents.mdx');
-  // console.log(data, content);
-  return (
+const BASE_PATH = 'public/posts/post';
+
+export default async function Page({ params }: { params: { id: string } }) {
+  console.log(params);
+  const p = await parsePost(`${BASE_PATH}/contents.mdx`);
+  const c = await getSortedPostList('post');
+  return;
     <div className="px-5">
-      <PostBody contentData={content} />
+      <PostBody contentData={p.content} />
     </div>
-  );
 }
