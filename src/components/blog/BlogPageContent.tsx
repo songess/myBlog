@@ -1,35 +1,41 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Post } from '@/lib/parsingPost';
+import { CATEGORY } from '@/constant/category';
 
 export default function BlogPageContent({ posts }: { posts: Post[] }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<string>('All');
+  const param = useSearchParams();
+  const [activeTab, setActiveTab] = useState<string>(CATEGORY[0]);
 
   const filteredPosts =
-    activeTab === 'All'
+    activeTab === CATEGORY[0]
       ? posts
       : posts.filter((post) => post.category === activeTab);
+
+  useEffect(() => {
+    setActiveTab(CATEGORY[Number(param.get('category')) || 0]);
+  }, []);
 
   return (
     <div className="container mx-auto pb-8 px-4">
       <Tabs
-        defaultValue="All"
+        defaultValue={CATEGORY[0]}
         className="mb-8 w-fit"
         onValueChange={setActiveTab}
       >
         <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="All">전체</TabsTrigger>
-          <TabsTrigger value="운영체제">운영체제</TabsTrigger>
-          <TabsTrigger value="FE">FE</TabsTrigger>
-          <TabsTrigger value="CS">CS</TabsTrigger>
-          <TabsTrigger value="일상">일상</TabsTrigger>
+          {CATEGORY.map((value) => (
+            <TabsTrigger key={value} value={value}>
+              {value}
+            </TabsTrigger>
+          ))}
         </TabsList>
       </Tabs>
 
