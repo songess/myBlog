@@ -1,7 +1,7 @@
-import { CATEGORY } from '@/constant/category';
+import { CATEGORY_ARR } from '@/constant/category';
 
 // category type 정의
-export type CategoryType = (typeof CATEGORY)[number];
+export type CategoryType = (typeof CATEGORY_ARR)[number];
 
 // 블로그 포스트 타입 정의
 export type tempPost = {
