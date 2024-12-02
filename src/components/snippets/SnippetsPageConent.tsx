@@ -99,7 +99,10 @@ export default function SnippetsPageContent({
                     key={tag}
                     variant="outline"
                     size="sm"
-                    onClick={() => toggleTag(tag)}
+                    onClick={(e) => {
+                      toggleTag(tag);
+                      e.stopPropagation();
+                    }}
                     className="rounded-full text-xs"
                   >
                     {tag}
