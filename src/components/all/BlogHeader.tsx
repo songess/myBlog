@@ -4,19 +4,51 @@ import { Button } from '../ui/button';
 import SearchSVG from '@public/svg/search.svg';
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
+import debounce from 'lodash/debounce';
 
 export default function BlogHeader() {
   const { theme, setTheme } = useTheme();
+  const [inputValue, setInputValue] = useState('');
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const params = useSearchParams();
+  const category = params.get('category');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []); 
+
+  const debouncedHandleChange = useCallback(
+    debounce((value: string) => {
+      window.location.href = `/blog?category=${category}&search=${value}`;
+    }, 500),
+    [category]
+  );
+
+  const HandleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+    if (pathname.startsWith('/blog')) {
+      debouncedHandleChange(e.target.value);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      debouncedHandleChange.cancel();
+    };
+  }, [debouncedHandleChange]);
 
   useEffect(() => {
     setMounted(true);
+    setInputValue(params.get('search') || '');
   }, []);
 
   useEffect(() => {
@@ -102,6 +134,14 @@ export default function BlogHeader() {
                 type="search"
                 placeholder="Search..."
                 className="pl-8 pr-4"
+                ref={inputRef} 
+                onChange={HandleChange}
+                value={inputValue}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    window.location.href = `/blog?category=전체&search=${inputValue}`;
+                  }
+                }}
               />
               <SearchSVG className="h-4 w-4 absolute left-2.5 top-3 text-gray-500" />
             </div>
