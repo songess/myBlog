@@ -3,7 +3,7 @@ import Giscus from '@/components/all/Giscus';
 import PostIndex from '@/components/all/PostIndex';
 import PostBody from '@/components/ui/PostBody';
 import { BASE_POSTS_PATH } from '@/constant/path';
-import { parsePost } from '@/lib/parsingPost';
+import { parsePost } from '@/lib/parseContent';
 import dayjs from 'dayjs';
 import Image from 'next/image';
 import React from 'react';

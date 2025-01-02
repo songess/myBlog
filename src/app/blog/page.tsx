@@ -1,11 +1,11 @@
 import BlogPageContent from '@/components/blog/BlogPageContent';
 import { CATEGORY_ARR } from '@/constant/category';
-import { getSortedPostList } from '@/lib/parsingPost';
-import { CategoryType } from '@/type/type';
+import { getSortedContentList } from '@/lib/parseContent';
+import { CategoryType, Post } from '@/type/type';
 import { headers } from 'next/headers';
 
 export default async function BlogPage() {
-  const myPosts = await getSortedPostList('posts');
+  const myPosts = await getSortedContentList('posts') as Post[];
   const category = decodeURIComponent(
     headers().get('x-query-category') || ''
   ) as CategoryType;

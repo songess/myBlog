@@ -4,10 +4,11 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import dayjs from 'dayjs';
-import { getSortedPostList } from '@/lib/parsingPost';
+import { getSortedContentList } from '@/lib/parseContent';
+import { Post } from '@/type/type';
 
 export default async function Page() {
-  const posts = await getSortedPostList('posts');
+  const posts = await getSortedContentList('posts') as Post[];
   return (
     <main className="container mx-auto px-4 h-full">
       <section className="mb-16">
