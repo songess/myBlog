@@ -1,4 +1,5 @@
 import CategoryTag from '@/components/all/CategoryTag';
+import Giscus from '@/components/all/Giscus';
 import PostIndex from '@/components/all/PostIndex';
 import PostBody from '@/components/ui/PostBody';
 import { BASE_POSTS_PATH } from '@/constant/path';
@@ -18,7 +19,7 @@ export default async function Page({ params }: { params: { id: string } }) {
         alt={`${p.title} 썸네일 이미지`}
         width={100}
         height={100}
-        className="object-cover object-center w-full h-36 mb-2"
+        className="object-center w-fit h-36 mb-2 mx-auto"
       />
       <div className="flex flex-col gap-2 mb-2">
         <CategoryTag category={p.category} />
@@ -30,6 +31,7 @@ export default async function Page({ params }: { params: { id: string } }) {
       <hr className="py-2" />
       <PostIndex />
       <PostBody contentData={p.content} />
+      <Giscus />
     </div>
   );
 }
