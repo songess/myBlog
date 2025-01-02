@@ -4,16 +4,16 @@ import { ThemeProvider } from 'next-themes';
 import BlogHeader from '@/components/all/BlogHeader';
 
 export const metadata: Metadata = {
-  title: 'My Blog',
-  description: 'Welcome to my blog!',
+  title: 'songess blog',
+  description: '기록하며 정리하는 나의 이야기',
   icons: {
-    icon: '/png/beulping.png',
+    icon: '/png/thumbnail.png',
   },
   openGraph: {
     title: 'Blog',
     images: [
       {
-        url: '/png/beulping.png',
+        url: '/png/thumbnail.png',
       },
     ],
     type: 'website',
@@ -27,12 +27,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="kr" suppressHydrationWarning>
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap"
-        />
-      </head>
       <body className="pt-[70px]">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <BlogHeader />
