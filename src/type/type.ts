@@ -11,7 +11,7 @@ export interface PostMatter {
   image: string;
   excerpt: string;
   id: string;
-  category: 'All' | '운영체제' | 'FE' | 'CS' | '일상';
+  category: CategoryType;
 }
 
 export interface Post extends PostMatter {
@@ -28,5 +28,16 @@ export type SnippetMatter = {
 };
 
 export interface Snippet extends SnippetMatter {
+  content: string;
+}
+
+export interface LogMatter {
+  id: string;
+  title: string;
+  date: Date;
+  dateString: string;
+}
+
+export interface Log extends LogMatter {
   content: string;
 }
