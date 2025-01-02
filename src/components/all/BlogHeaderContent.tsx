@@ -128,6 +128,18 @@ export default function BlogHeaderContent({ search }: { search: string }) {
                   <Link href="/snippets">Snippets</Link>
                 </Button>
               </li>
+              <li>
+                <Button
+                  className={
+                    pathname === '/log'
+                      ? 'font-bold text-base'
+                      : 'font-medium text-base'
+                  }
+                  variant="ghost"
+                >
+                  <Link href="/log">Log</Link>
+                </Button>
+              </li>
             </ul>
           </nav>
         </div>
