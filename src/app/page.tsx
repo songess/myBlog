@@ -8,15 +8,15 @@ import { getSortedContentList } from '@/lib/parseContent';
 import { Post } from '@/type/type';
 
 export default async function Page() {
-  const posts = await getSortedContentList('posts') as Post[];
+  const posts = (await getSortedContentList('posts')) as Post[];
   return (
     <main className="container mx-auto px-4 h-full">
       <section className="mb-16">
-        <h1 className="text-4xl font-bold mb-4">블꾸 프로젝트</h1>
+        <h1 className="text-4xl font-bold mb-4">기록하며 성장하는 블로거</h1>
         <p className="text-xl text-muted-foreground mb-4">
-          안녕하세요
+          안녕하세요😁
           <br />
-          CNU 24-fall 블꾸 프로젝트 입니다
+          {/* CNU 24-fall 블꾸 프로젝트 입니다 */}
         </p>
       </section>
 

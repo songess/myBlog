@@ -13,7 +13,7 @@ export default async function Page({ params }: { params: { id: string } }) {
   const p = await parsePost(`${BASE_PATH}/${params.id}.mdx`);
 
   return (
-    <div className="px-5 container mx-auto">
+    <div className="px-5 container mx-auto max-w-[768px]">
       <Image
         src={p.image}
         alt={`${p.title} 썸네일 이미지`}

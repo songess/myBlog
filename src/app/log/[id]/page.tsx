@@ -8,7 +8,7 @@ export default async function LogPage({ params }: { params: { id: string } }) {
   const log = await parseLog(`${BASE_PATH}/${params.id}.mdx`);
 
   return (
-    <div className="px-5 container mx-auto">
+    <div className="px-5 container mx-auto max-w-[768px]">
       <div className="flex flex-col gap-2 mb-2">
         <h1 className="text-[40px]">{log.title}</h1>
         <p className="text-gray-600 text-sm">
