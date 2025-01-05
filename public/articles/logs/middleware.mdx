@@ -1,0 +1,32 @@
+---
+id: middleware
+title: middleware
+date: 2025-01-05
+---
+
+미들웨어는 `request`가 수행되기 전에 원하는 로직을 수행할 수 있다.
+이는 인터셉터와 비슷하지만, 차이점은 네트워크수준(HTTP)에서 동작하기 때문에 `body`를 직접 수정할 순 없다.
+
+<br />
+인증, 리다이렉션, 로그분석 등을 위해 주로 쓰인다.
+
+단 복잡한 로직, 그리고 처리할 업무가 많다면 미들웨어를 지양해야 한다.
+
+기본적으로 모든 경로에 대해 호출되기 때문에, matching pattern을 지정해줘야 한다.
+
+<br />
+`request`의 url을 통해 어떠한 요청인지 구분하는 것이 일반적이다.{' '}
+
+응답에서 수행할 수 있는 것들은 다음과 같다.
+
+redirect, rewrite, response의 header와 cookie세팅, request의 header 세팅
+
+<details>
+  <summary>rewrite와 redirect의 차이</summary>
+  <div markdown="1">
+    redirect: 클라이언트의 URL을 수정한다.
+    <br />
+    rewrite: 클라이언트의 요청 URL(엔드포인트)를 수정한다.
+  </div>
+</details>
+

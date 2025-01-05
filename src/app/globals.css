@@ -220,9 +220,11 @@ h6 {
 }
 
 h1 {
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: 700;
   letter-spacing: -0.02em;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
 }
 
 h2 {
@@ -294,6 +296,16 @@ pre {
   margin-right: 1.25rem;
   text-align: right;
   color: gray;
+}
+p > a{
+  color: rgb(219, 39, 119);
+}
+
+p > code {
+  background-color: rgb(236, 238, 242);
+  border-radius: 0.2rem;
+  padding: 2px 6px;
+  font-size: 14px;
 }
 
 *::-webkit-scrollbar {
