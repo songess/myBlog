@@ -1,0 +1,45 @@
+---
+id: shadcn
+title: shadcn 버그 해결
+date: 2025-01-14
+tags:
+  - shadcn
+---
+
+`shadcn`에서 `Select`, `Dropdown`, `Command` 등을 사용할 때 모달이 생성되면 레이아웃이 이상해지는 버그가 있다.
+
+`body`와 관련한 문제가 발생하는데, `shadcn`의 문제라기보단 의존성으로 설치되는 `radix`와 관련한 문제라 일반적으로 해결할 순 없고 `global.css`를 건드는 방식으로 해결할 수 있다.
+
+# 해결방법 1
+
+```css
+body[data-scroll-locked] {
+  min-width: 100%;
+}
+```
+
+정확한 동작방식은 모르겠지만 아마 모달 활성화 시 `data-scroll-locked`속성이 적용되는 거 같다. 이를 적용하고 다른 버그가 발생하지는 않았다.
+
+# 해결방법 2
+
+```css
+body {
+  @apply !min-w-full;
+}
+```
+
+`body`자체가 못 줄어들게 만든다. 다만 이 방법은 이미 `body`의 최소너비를 지정했다면 사용할 수 없다.
+
+# 해결방법 3
+
+````ts
+ <html lang="en">
+      <body>
+       <div> {children} </div>
+      </body>
+    </html>
+````
+`body`안에 `div`를 만들어 사용한다. 버그가 발생하는 것은 `body`기 때문. 하지만 이 방법은 `div`태그로 한층 더 감싸주기 때문에 나는 지양하는 방법이다.
+
+# 해결방법 4
+`margin`관련 속성을 만져본다. 나 같은 경우`margin: 0 auto;`를 없애니 정상적으로 동작했다. 하지만 가운데 정렬이 불가능했고 이를 위해 transform과 translate을 사용했지만 다른 부분에서 레이아웃이 깨져 이 방법을 사용하지 못했다. 

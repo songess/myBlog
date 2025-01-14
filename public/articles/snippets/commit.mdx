@@ -1,0 +1,41 @@
+---
+id: commit
+title: git commit 자동완성
+date: 2024-10-07
+tags: 
+  - git
+---
+
+협업 시 `commit template`을 정해서 하는게 편한데, 이를 자동화 시키는 방법
+
+# 1. 명령어 등록
+에디터에서 `command+shift+p`를 누른다.
+
+그리고 `Shell Command: Install ‘code’ command ~`를 클릭한다.
+
+`vscode`라면 `code`지만 `cursor`라면 `cursor`, `windsuf`면 `windsurf` 등 에디터별로 다르다.
+
+# 2. commit 시 커밋 파일이 열릴 수 있도록 설정
+
+```ts
+git config --global core.editor "code --wait"
+```
+
+# 3. commit template 설정
+```ts
+git config --global commit.template .gitmessage.txt
+```
+
+# 4. commit template 파일 만들기
+```ts
+// .gitmessage.txt
+################
+# [feat] : 
+# [fix] : 
+# [docs] : 
+# [test] : 
+# [refactor] : 
+# [style] : 
+# [chore] : 
+################
+```
