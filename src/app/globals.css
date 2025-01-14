@@ -169,6 +169,8 @@ body {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    --code-bg: 0 0% 96.1%;
+    --code-foreground: 0 0% 9%;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -195,6 +197,8 @@ body {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --code-bg: 0 0% 14.9%;
+    --code-foreground: 0 0% 98%;
   }
 }
 @layer base {
@@ -252,7 +256,18 @@ p {
   line-height: 1.8;
   word-spacing: 0.05em;
   letter-spacing: -0.003em;
-  color: rgb(55 65 81);
+  color: hsl(var(--code-foreground));
+}
+
+p > a{
+  color: rgb(219, 39, 119);
+}
+
+p > code {
+  background-color: hsl(var(--code-bg));
+  border-radius: 0.2rem;
+  padding: 2px 6px;
+  font-size: 14px;
 }
 
 /* Dark mode adjustments */
@@ -268,6 +283,10 @@ p {
 
   h2 {
     border-bottom-color: hsl(var(--border));
+  }
+
+  p > code {
+    background-color: yellow;
   }
 }
 
@@ -296,16 +315,6 @@ pre {
   margin-right: 1.25rem;
   text-align: right;
   color: gray;
-}
-p > a{
-  color: rgb(219, 39, 119);
-}
-
-p > code {
-  background-color: rgb(236, 238, 242);
-  border-radius: 0.2rem;
-  padding: 2px 6px;
-  font-size: 14px;
 }
 
 *::-webkit-scrollbar {

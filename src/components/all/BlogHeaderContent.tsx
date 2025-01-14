@@ -93,52 +93,60 @@ export default function BlogHeaderContent({ search }: { search: string }) {
           <nav>
             <ul className="flex">
               <li>
-                <Button
-                  className={
-                    pathname === '/about'
-                      ? 'font-bold text-base'
-                      : 'font-medium text-base'
-                  }
-                  variant="ghost"
-                >
-                  <Link href="/about">About</Link>
-                </Button>
+                <Link href="/about">
+                  <Button
+                    className={
+                      pathname === '/about'
+                        ? 'font-bold text-base'
+                        : 'font-medium text-base'
+                    }
+                    variant="ghost"
+                  >
+                    About
+                  </Button>
+                </Link>
               </li>
               <li>
-                <Button
-                  className={
-                    pathname === '/blog' || pathname.startsWith('/post')
-                      ? 'font-bold text-base'
-                      : 'font-medium text-base'
-                  }
-                  variant="ghost"
-                >
-                  <Link href="/blog?category=전체">Blog</Link>
-                </Button>
+                <Link href="/blog?category=전체">
+                  <Button
+                    className={
+                      pathname === '/blog' || pathname.startsWith('/post')
+                        ? 'font-bold text-base'
+                        : 'font-medium text-base'
+                    }
+                    variant="ghost"
+                  >
+                    Blog
+                  </Button>
+                </Link>
               </li>
               <li>
-                <Button
-                  className={
-                    pathname.startsWith('/snippets')
-                      ? 'font-bold text-base'
-                      : 'font-medium text-base'
-                  }
-                  variant="ghost"
-                >
-                  <Link href="/snippets">Snippets</Link>
-                </Button>
+                <Link href="/snippets">
+                  <Button
+                    className={
+                      pathname.startsWith('/snippets')
+                        ? 'font-bold text-base'
+                        : 'font-medium text-base'
+                    }
+                    variant="ghost"
+                  >
+                    Snippets
+                  </Button>
+                </Link>
               </li>
               <li>
-                <Button
-                  className={
-                    pathname === '/log'
-                      ? 'font-bold text-base'
-                      : 'font-medium text-base'
-                  }
-                  variant="ghost"
-                >
-                  <Link href="/log">Log</Link>
-                </Button>
+                <Link href="/log">
+                  <Button
+                    className={
+                      pathname === '/log'
+                        ? 'font-bold text-base'
+                        : 'font-medium text-base'
+                    }
+                    variant="ghost"
+                  >
+                    Log
+                  </Button>
+                </Link>
               </li>
             </ul>
           </nav>

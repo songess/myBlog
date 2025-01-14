@@ -33,7 +33,7 @@ export default function PostIndex() {
       });
     });
 
-    setTocList(tocItems);
+    setTocList(tocItems.slice(1));
     setIsView(tocItems.length > 0);
     if (tocItems.length > 0) {
       setActiveId(tocItems[0].id);
