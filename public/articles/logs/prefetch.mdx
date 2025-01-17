@@ -1,0 +1,99 @@
+---
+id: prefetch
+title: prefetch
+date: 2025-01-17
+---
+
+# prefetch
+
+티그에 `middleware`, 쿠키를 사용해 SSR를 도입하고 있다. 이제 `tanstack query`도 적용시키려고 했는데 문제가 좀 있었다.
+
+먼저 서버에서(`page.tsx`) 토큰여부를 통해 로그인여부를 확인한다. 이후 요청을 보내야하는데, `fetch`를 사용한 요청은 응답을 `await`으로 받아 클라이언트 컴포넌트에 넘겨주면 되지만 나는 `tanstack query`, 그리고 `useSuspenseQuery`를 사용하고 싶었다.
+
+`tanstack query`를 적용시켜 얻는 이점은 캐시관리, 백그라운드 업데이트, 데이터 갱신이였고 `useSuspenseQuery`는 이를 사용함으로써 `Suspense`를 사용해 선언적으로 사용할 수 있음이기에 이 둘을 놓치고 싶지 않았다.
+
+만약 `fetch()`만 사용한다면
+
+```ts
+//page.tsx
+import { useGetWishList } from '@apis/wishlist/getWishList';
+import WishListPage from './WishListPage';
+
+export default function Page() {
+  const { data: wishList } = getWishList();
+
+  return <WishListPage wishList={wishList} />;
+}
+```
+
+RSC에서 다음과 같이 처리하면 끝났지만 언급한 두가지를 하기 위해선 `hydrate`,`dehydrate`를 사용해야 한다. 이를 위해서는
+
+```ts
+//getQueryClient()
+export function getQueryClient() {
+  if (isServer) {
+    // Server: always make a new query client
+    return makeQueryClient();
+  } else {
+    // Browser: make a new query client if we don't already have one
+    // This is very important, so we don't re-make a new client if React
+    // suspends during the initial render. This may not be needed if we
+    // have a suspense boundary BELOW the creation of the query client
+    if (!browserQueryClient) browserQueryClient = makeQueryClient();
+    return browserQueryClient;
+  }
+}
+
+//page.tsx
+export default function Page() {
+  const queryClient = getQueryClient();
+  queryClient.prefetchQuery({
+    queryKey: ['wishlist'],
+    queryFn: () => getWishList(cookies().toString()),
+  });
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <WishListPage />
+    </HydrationBoundary>
+  );
+}
+```
+
+다음과 같이 RSC에서 deydrate을 해주고 서버컴포넌트에서 hydrate을 해주는 과정을 만들어주었다.
+
+# 토큰처리
+
+한가지 걸리는 문제가 있었는데, 요청에 쿠키를 담아야 한다는 것이다. SSR에서는 자동으로 쿠키가 담긴다만 클라이언트 컴포넌트에서는 쿠키를 담을 수 없었고, 그러면 동일한 함수가 아닐 거라고 생각했다.
+
+그래서
+
+```ts
+export default function Page() {
+  const queryClient = getQueryClient();
+  queryClient.prefetchQuery({
+    queryKey: ['wishlist'],
+    queryFn: getWishList,
+  });
+  const { data: wishList } = useGetWishList();
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <WishListPage wishList={wishList} />
+    </HydrationBoundary>
+  );
+}
+```
+
+처음에는 이렇게 시도해보았다. 하지만 제대로 호출되지 않는현상이 발생했고, 이는 hydrate과 dehydrate의 정상적인 사용방법이 아니기 때문이라 생각이 들었다.
+
+그렇다고 `WishListPage`안에서 호출할 수는 없었다. 언급했던 것처럼 두 함수가 다르기 때문이다.
+
+<br />
+그러나 혹시나하는 생각으로 `WishListPage`안에서는 쿠키를 넘기지 않고 `useSuspenseQuery`를
+사용했는데 정상적으로 동작했다. `queryKey`가 pKey가 되어 캐싱되기 때문이라고 생각하는데,
+정확하지는 않아서 공부가 필요할 것 같다.
+
+<br /> <br />
+이제 로컬서버에서 localhost 쿠키저장방식만 정확하게 할 수 있다면 모든 문제가 해결된다.
+얼른 리팩토링 해야겠다.

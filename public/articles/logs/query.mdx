@@ -8,13 +8,13 @@ date: 2025-01-16
 
 더 빠른 렌더링을 위해서는 `Request Waterfall`을 최소화 시켜야 한다.
 
-```
+```ts
 1. |-> Markup (without content)
 2.   |-> JS
 3.     |-> Query
 ```
 을
-```
+```ts
 1. |-> Markup (with content AND initial data)
 2.   |-> JS
 ```
@@ -22,7 +22,7 @@ date: 2025-01-16
 다음과 같이 바꿨고, 이제
 
 <br />
-```
+```ts
 1. |> Markup (without content)
 2.   |> JS for <Feed>
 3.     |> getFeed()
@@ -30,7 +30,7 @@ date: 2025-01-16
 5.         |> getGraphDataById()
 ```
 이것도
-```
+```ts
 1. |> Markup (with content AND initial data)
 2.   |> JS for <Feed>
 2.   |> JS for <GraphFeedItem>
