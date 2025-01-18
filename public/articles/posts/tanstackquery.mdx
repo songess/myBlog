@@ -1,0 +1,297 @@
+---
+title: tanstack query
+date: 2025-01-18
+excerpt: 원리부터 SSR까지 알아보기
+image: /png/tanstackquery/250118-221528.png
+id: tanstackquery
+category: FE
+---
+
+# default
+
+기본적으로 `useQuery`, `useInfiniteQuery`요청 등으로 캐싱되는 데이터는 `stale`하게 여겨진다.
+
+`stale하다`는 것은 오래되었기 때문제 리패칭이 필요하다는 것이다. 즉, `staleTime`이 0으로 설정되어 매 요청시 새로운 요청을 야기한다.
+
+`staleTime`을 늘린다는 것은 데이터들의 리패칭 주기를 늘린다는 것이다.
+
+<br/ >`stale`한 요청들은
+`query가 마운트 될때`,`윈도우가 refocus될때`, `네트워크가 다시 연결될때`,`refetced interval을 지났을때`
+백그라운드에서 자동적으로 리패칭이 이루어진다.
+
+`stale`상태인 데이터는 메모리에 캐시되어있지 않다는 것은 아니다. `cacheTime`의 디폴트는 5분으로, `staleTime`이 지나면 `stale`상태가 되고, `cacheTime`이 지나고 나서 메모리에서 삭제된다.
+
+이때 메모리라는 것은 클라이언트 단에서는 브라우저(JS)에 캐시객체가 유지되는 것이고, SSR에서는 `Node.js`등 서버에서 캐시객체가 유지된다.
+
+객체, 인스턴스가 관리되는 곳은 `QueryClient`이다. 즉 `QueryClient` 내부 인스턴스에서 데이터를 캐싱하고 브라우저를 닫거나 새로고침 할 때까지 유지한다.
+
+`QueryClient`는 데이터 페칭과 캐싱, 상태 관리를 총괄하는 핵심적인 `매니저`라고 생각할 수 있다.
+
+# Query Key
+
+`A query is a declarative dependency on an asynchronous source of data that is tied to a unique key.`
+
+쿼리는 `unique key`와 묶인 비동기적 데이터와 종속성이다. 고유키는 `query key`를 의미한다.
+
+<br /> 즉 `queryClient`에서 `query key`를 통해 데이터를 구분하고 관리한다. 각
+데이터가 `stale`해졌는지, 캐싱이 되어있는지, 리패칭이 필요한 지 구분하여 필요한
+행위를 한다.
+
+이 쿼리들은 커스텀 훅, `useQuery`등으로 `subscribe`할 수 있다.
+
+# Query Function
+
+## useQuery
+
+컴포넌트에서 데이터를 가져온다.
+
+```ts
+const res = useQuery<TYPE>(option);
+```
+
+option에서 `queryKey`, `queryFn`, `staleTime`등을 설정한다. res는 객체를 반환하는데, `data`, `error`, `isLoading`, `isError`, `isFetching` 등이 있다.
+
+기본적인 `data`뿐만 아니라 `isLoading`등도 반환되기 떄문에 비동기 상태를 처리하는데 용이하다.
+
+## useSuspenseQuery
+
+`useQuery`는 `isLoading`등을 사용하는 게 장점이지만 단점이 될 수 있다. 직접 분기처리를 해줘야 하기 때문에 명령형으로 사용헤야해서 코드가 더러워보일 수 있다.
+
+`useSuspenseQuery`를 사용하면 `data`는 `defined`가 보장되고, `Suspense`를 사용할 수 있다.
+
+다만 `Suspense`로 클라이언트 컴포넌트를 감싸면 해당 컴포넌트가 서버에서 렌더링되어 에러가 뜬다. 이를 해결해주기 위해 `CustomSuspense`를 만들어 서버단에서는 `Suspense`가 호출되지 않게 할 수 있다.
+
+```ts
+'use client';
+import { Suspense, useEffect, useState, ComponentProps } from 'react';
+
+function useMounted() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  return mounted;
+}
+
+export default function CustomSuspense(props: ComponentProps<typeof Suspense>) {
+  const isMounted = useMounted();
+
+  if (isMounted) {
+    return <Suspense {...props} />;
+  }
+  return <>{props.fallback}</>;
+}
+```
+
+## useMutation
+
+`query`는 데이터를 가져오는 `GET`에 사용하고, 나머지 데이터를 변경하는 작업은 `useMutate`을 사용한다. `onSuccess`와 함께 `invalidateQueries`등의 메서드를 사용하면 캐싱된 데이터의 리패칭을 백그라운드에서 간편하게 수행할 수 있다.
+
+# SSR(Next.js) with tanstack query
+
+## setting
+
+기본적으로 `tanstack query`는 커스텀 훅을 사용하는 클라이언트 컴포넌트에서 사용하도록 설계되었다. 하지만 `Next.js`에서도 사용이 가능하다.
+
+```ts
+//Providers.tsx
+'use client';
+
+import {
+  QueryClient,
+  QueryClientProvider,
+  defaultShouldDehydrateQuery,
+} from '@tanstack/react-query';
+
+function makeQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        // SSR에서는 클라이언트에서 즉시 refetch하는 것을 피하기 위해
+        // staleTime을 0보다 크게 설정하는 것이 좋다.
+        // staleTime이 없다면 서버에서 받응 응답이 바로 stale하다 판단하여 클라이언트에서 동일한 요청이 다시 일어난다.
+        staleTime: 60 * 1000,
+      },
+    },
+  });
+}
+
+let browserQueryClient: QueryClient | undefined = undefined;
+
+function getQueryClient() {
+  if (typeof window === 'undefined') {
+    // Server일 경우
+    // 매번 새로운 queryClient를 만든다.
+    // 요청마다 다른 사용자, 데이터 일 수 있으므로
+    return makeQueryClient();
+  } else {
+    // Browser일 경우
+    // queryClient가 존재하지 않을 경우에만 새로운 queryClient를 만든다.
+    if (!browserQueryClient) browserQueryClient = makeQueryClient();
+    return browserQueryClient;
+  }
+}
+
+export default function Providers({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  // queryClient를 useState를 사용하여 초기화 하면 안된다.
+  // suspense boundary가 없을 경우 React의 렌더링이 중단될 수도 있고
+  // queryClient 자체를 폐기할 수 도 있다.
+  const queryClient = getQueryClient();
+
+  return (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+}
+```
+
+## prefetch
+
+서버컴포넌트에서는 `staleTime`을 설정해 클라이언트컴포넌트에서 리패칭이 일어나지 않도록 설정, 클라이언트 컴포넌트에서는 하나의 `queryClient`를 관리할 수 있도록 설정한다.
+
+서버에서 요청을 보내기 위해선 `prefetch`가 필요하다. `Next.js`의 `fetch`만 사용한다고 가정해보자
+
+```ts
+//page.tsx(RSC)
+...
+export default function Page() {
+  const { data: wishList } = getWishList();
+
+  return <ClientComponent wishList={wishList} />;
+}
+```
+
+이렇게 사용해서 클라이언트 컴포넌트에 주입해주면 된다.
+
+하지만 `useQuery`등 훅은 RSC에서 사용할 수 없으므로 `prefetch`를 사용해야 한다.
+
+```ts
+//page.tsx(RSC)
+export default async function PostsPage() {
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ['posts'],
+    queryFn: getPosts,
+  });
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <ClientComponent />
+    </HydrationBoundary>
+  );
+}
+```
+
+서버에서 `prefetch`를 사용해 먼저 요청을 보낸다. 그리고 해당 요청이 끝나면 `HydrationBoundary`를 사용해 `dehydrate`을 사용해준다.
+
+`dehydrate`은 `serialization`, 직렬화, 파싱(as `JSON.stringify`)과 깉은 말이다. 서버에서 데이터를 가져오면 이를 파싱하여 클라이언트 컴포넌트로 넘긴다.
+
+그럼 클라이언트는 이 데이터를 `hydrate`, 파싱(as `JSON.parse`)하여 사용할 수 있다. `HydrationBoundary`안에 있는 클라이언트 컴포넌트는 이 직렬화된 데이터를 사용할 수 있다.
+
+## blocking 제거
+
+현재는 `await`을 사용해서 blocking이 발생하는데, 이를 없앨 수 있다.
+
+이를 위해 먼저 `makeQueryClient`에 `dehydrate`을 추가해준다.
+
+```ts
+//Providers.tsx
+function makeQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        // SSR에서는 클라이언트에서 즉시 refetch하는 것을 피하기 위해
+        // staleTime을 0보다 크게 설정하는 것이 좋다.
+        staleTime: 60 * 1000,
+      },
+      dehydrate: {
+        // include pending queries in dehydration
+        shouldDehydrateQuery: (query) =>
+          defaultShouldDehydrateQuery(query) ||
+          query.state.status === 'pending',
+      },
+    },
+  });
+}
+```
+
+이렇게 함으로써 서버단에서 요청이 발생하고 응답이 도착하지 않은, `pending`상태의 데이터로 `serialize`가능하도록 해주어 `async`, `await`을 제거해 `blocking`을 없앨 수 있다.
+
+```ts
+//page.tsx(RSC)
+export default function PostsPage() {
+  const queryClient = new QueryClient();
+
+  // await를 없앰
+  queryClient.prefetchQuery({
+    queryKey: ['posts'],
+    queryFn: getPosts,
+  });
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <ClientComponent />
+    </HydrationBoundary>
+  );
+}
+```
+
+이제 클라이언트 컴포넌트에서 동일한 `queryKey`를 사용하면 서버에서 가져온 데이터를 사용할 수 있다.
+
+```ts
+// page/ClientComponent.tsx
+'use client';
+
+export default function ClientComponent() {
+  const { data } = useSuspenseQuery({ queryKey: ['posts'], queryFn: getPosts });
+
+  // ...
+}
+```
+
+## 쿠키
+
+SSR에서 `prefetchQuery`를 통해 요청되는 API에는 쿠키가 담기지 않았다.
+
+```ts
+const queryClient = getQueryClient();
+queryClient.prefetchQuery({
+  queryKey: ['wishlist'],
+  queryFn: () => getWishList(cookies().toString()),
+});
+
+//getWishList
+export const getWishList = async (
+  cookie?: string
+): Promise<WishListResponse> => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_DOMAIN}/api/v1/wishlist`,
+    {
+      headers: {
+        Cookie: cookie ?? '',
+      },
+    }
+  );
+  return res.json();
+};
+```
+
+다음과 같이 직접 쿠키를 담아줘야 한다. 이렇게 하면 클라이언트컴포넌트에서 동일한 함수를 사용힐 수 없기에(`cookies()`는 `next/headers`에 있어 RSC에서만 사용가능) 에러가 뜰 것이라 생각할 수 있지만 그렇지 않다.
+
+위에서 `useQuery`친구들은 `queryClient`를 `subscribe`한다고 했다. 즉 이미 요청이 이루어졌다면 `queryFn`이 존재하지 않아도 데이터를 사용할 수 있다.
+
+```ts
+//ClientComponent.tsx
+export default function WishListPage() {
+  const { data: wishList } = useSuspenseQuery<WishListResponse>({
+    queryKey: ['wishlist'],
+  });
+  ...
+}
+```
+
+반환값을 설정해주면 `queryKey`만을 사용하고도 데이터를 가져와 사용할 수 있다.
