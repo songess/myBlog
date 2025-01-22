@@ -1,0 +1,61 @@
+---
+id: mdx
+title: mdx snippet 만들기
+date: 2025-01-23
+tags: 
+  - mdx
+---
+
+mdx로 블로그 글을 쓰려하면 메타데이터를 작성해야 하는데, 매번 작성하는 것은 귀찮기 때문에 `snippets`을 만들어 사용할 수 있다.
+
+왼쪽 상단의 에디터(code, cursor) -> `preferences` -> `snippets` -> `new snippets`를 클릭해 `mdx.json`파일을 만든다.
+
+```ts
+{
+  "MDX Blog Post Template": {
+    "prefix": "post",
+    "body": [
+      "---",
+      "title: $1",
+      "date: $CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE",
+      "excerpt: $2",
+      "image: /png/$3",
+      "id: ${TM_FILENAME_BASE}",
+      "category: 운영체제 | FE | CS | 일상",
+      "---",
+      "",
+      "$0"
+    ],
+    "description": "Create a new MDX blog post with frontmatter"
+  },
+  "MDX Snippet Template": {
+    "prefix": "snippet",
+    "body": [
+      "---",
+      "id: ${TM_FILENAME_BASE}",
+      "title: $1",
+      "date: $CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE",
+      "tags: ",
+      "---",
+      "",
+      "$0"
+    ],
+    "description": "Create a new MDX snippet with frontmatter"
+  },
+  "MDX Log Template": {
+    "prefix": "log",
+    "body": [
+      "---",
+      "id: ${TM_FILENAME_BASE}",
+      "title: $1",
+      "date: $CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE",
+      "---",
+      "",
+      "$0"
+    ],
+    "description": "Create a new MDX log with frontmatter"
+  }
+}
+```
+
+나는 `logs`, `snippets`, `posts`의 종류가 있기 때문에 3종류의 템플릿을 만들어 사용했다.
