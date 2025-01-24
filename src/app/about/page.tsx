@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Github, Linkedin, Mail, ExternalLink } from 'lucide-react';
+import { Github, Mail, ExternalLink } from 'lucide-react';
 
 export default function About() {
   const skills = ['React', 'Next.js', 'TypeScript', 'TailwindCSS', 'C', 'C++'];
@@ -155,7 +155,7 @@ export default function About() {
                   <Github className="h-5 w-5" />
                 </a>
               </Button>
-              <Button variant="outline" size="icon">
+              {/* <Button variant="outline" size="icon">
                 <a
                   href="https://naver.com"
                   target="_blank"
@@ -164,7 +164,7 @@ export default function About() {
                 >
                   <Linkedin className="h-5 w-5" />
                 </a>
-              </Button>
+              </Button> */}
             </div>
           </CardContent>
         </Card>
