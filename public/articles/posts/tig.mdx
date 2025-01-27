@@ -1,0 +1,339 @@
+---
+title: 티그 홈 리팩토링
+date: 2025-01-08
+excerpt: 성장은 리팩토링을 할때..?
+image: /png/tigRefact/250110-005006.png
+id: tig
+category: FE
+---
+
+티그 리팩토링을 하고 싶었는데, 학기 중에 시간이 없어서 못하던 것을 드디어 해보게 되었다.
+
+# 홈 페이지 리팩토링
+
+<details>
+  <summary>기존 홈 코드</summary>
+  <div markdown="1">
+```tsx
+'use client';
+...
+
+const bannerArray: React.FunctionComponent<React.SVGProps<SVGSVGElement>>[] = [
+HomeBannerSVG1,
+HomeBannerSVG2,
+HomeBannerSVG3,
+HomeBannerSVG4,
+HomeBannerSVG5,
+];
+
+const bannerLinkArray = [
+'https://tigleisure.com/',
+'https://longing-scallop-dfd.notion.site/3-000-2a2677fd096047a8b715219db39cd15d?pvs=4',
+'https://longing-scallop-dfd.notion.site/10-000-5-87053ece85e2448e9744d89465dbffde?pvs=4',
+'https://longing-scallop-dfd.notion.site/10-000-5-87053ece85e2448e9744d89465dbffde?pvs=4',
+'https://longing-scallop-dfd.notion.site/3-000-won-discount-coupon-policy-74d16e4cb53c4c90bac604ebd03599b4?pvs=4',
+];
+
+export default function Home() {
+  return (
+    <Suspense fallback={<TigLoadingPage />}>
+      <HomeContent />
+    </Suspense>
+  );
+}
+
+function HomeContent() {
+const [currentBanner, setCurrentBanner] = useState(0);
+const [isBannerClicked, setIsBannerClicked] = useState(false);
+const router = useRouter();
+const CurrentBannerSVG = bannerArray[currentBanner];
+
+const nextBanner = () => {
+setCurrentBanner((prev) => (prev + 1) % bannerArray.length);
+};
+
+const prevBanner = () => {
+setCurrentBanner(
+(prev) => (prev - 1 + bannerArray.length) % bannerArray.length
+);
+};
+
+useEffect(() => {
+let timer: string | number | NodeJS.Timeout | undefined;
+if (!isBannerClicked) {
+timer = setInterval(nextBanner, 3000);
+} else {
+clearInterval(timer);
+}
+
+    return () => clearInterval(timer);
+
+}, [isBannerClicked]);
+const MAINARRAY = mainArray;
+const { clubCards, recommendClubCards, isSuccess } = useGeolocation();
+const [isVisible, setIsVisible] = useState(true);
+const [lastScrollY, setLastScrollY] = useState(0);
+
+useEffect(() => {
+if (typeof window === 'undefined') return;
+
+    const controlNavbar = () => {
+      const currentScrollY = document.documentElement.scrollTop;
+      console.log(currentScrollY);
+      if (currentScrollY > lastScrollY) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', controlNavbar);
+
+    return () => {
+      window.removeEventListener('scroll', controlNavbar);
+    };
+
+}, [lastScrollY]);
+
+return (
+
+<main className="w-full flex flex-col pb-[40px] bg-white">
+  <SearchHeader isHomeOrResultPage className="sticky" />
+  <Tabs
+    tabArray={MAINARRAY}
+    from="home"
+    className={`stickytransition-transform duration-300 ease-in-out z-[9] top-[58px] ${
+      isVisible ? 'translate-y-0' : '-translate-y-300'
+    }`}
+  />
+  {!isSuccess && <TigLoadingPage />}
+  {isSuccess && (
+    <>
+      <div
+        className="relative w-full max-w-[640px] mb-5 cursor-pointer"
+        onMouseDown={() => setIsBannerClicked(true)}
+        onMouseUp={() => setIsBannerClicked(false)}
+        onMouseLeave={() => setIsBannerClicked(false)}
+        onClick={() => {
+          router.push(bannerLinkArray[currentBanner]);
+        }}
+      >
+        <CurrentBannerSVG className="w-full h-auto" />
+        <div className="absolute bottom-[14px] right-5 bg-black bg-opacity-50 text-white px-2 py-1 rounded  caption4">
+          {currentBanner + 1}&nbsp;&nbsp;|&nbsp;&nbsp;{bannerArray.length}
+        </div>
+      </div>
+      <UIList />
+      {clubCards.length !== 0 && (
+        <HomeCardList
+          title="근처에서 즐길 수 있는 스포츠예요"
+          Card={clubCards}
+        />
+      )}
+      <HomeCardList title="이런 스포츠 어때요?" Card={recommendClubCards} />
+      <Footer />
+    </>
+  )}
+</main>
+); }
+
+````
+  </div>
+</details>
+
+기존의 코드... 사실 리팩토링을 한 번도 안한 것은 아니기 때문에 API 호출하는 부분은 어느정도 빼놨지만, 새로운 기능들이 추가되면서 정신없어졌다. 좀 심할정도..
+
+<br /> 리팩토링을 시작하기 전에 전체 틀을 바꾸고 싶었다.
+
+`Next.js`를 사용하면 만들었지만, 대부분의 컴포넌트에 `use client`를 사용하여 넥스트를 사용하는 이유가 없어지고 있다는 느낌을 많이 받았다.
+유저와의 상호작용이 많이 필요하고, 로그인/비로그인 유저를 구분하기 위해 어쩔 수 없다고 합리화 하고 있었지만 변명뿐이라는 생각을 항상 했었다.
+
+## 로그인 / 비로그인 유저 구분
+
+토큰을 사용해 구분해야 하는데, `http-only` 속성이 부여된 쿠키는 까보지 못한다는 생각때문에 AT는 헤더로 옮겨와 로컬스토리지에 심어두는 방식을 이용했지만
+이 방법은 `XSS`공격에 위험요인이 될 수 있다고 생각했다.
+
+이를 위해 RSC와 middleware를 사용했다. CC는 클라이언트 단이기 때문에 `http-only`속성이 부여된 쿠키는 읽어볼 수 없지만 RSC는 서버단이기 때문에 읽을 수 있었다.
+
+쿠키에서 토큰을 읽을 수 있다면 로그인/비로그인 유저구분을 정상적으로 할 수 있고 플러스알파로 성능향상, 보안강화의 이점이 있었기 때문에 적용했다.
+
+## 선언형 컴포넌트
+
+또한 `Suspense`를 사용하지 않았기 때문에 명령형 컴포넌트로 만들었는데 이는 가독성을 많이 해친다고 생각해서 선언형으로 바꾸고 싶었다.
+이를 위해선 먼저 바꿔야할 부분들이 있었다.
+
+### 기존 로직 변경
+
+먼저 우리 `home`의 API는 나의 위,경도를 사용한다. MVP를 만들었을때 내 정보를 쏘니깐 이건 `POST`메서드를 사용해야지 하고 `POST`로 만들었지만, 이렇게 하면 `suspense`를 적용할 수 없다. 그리고 `POST`요청은 DB의 데이터가 변경될 때 사용하는 것이 맞으므로 메서드 사용이 잘못된 부분도 있었다.
+
+현재 `tanstack query`에서는 `useMutate`에서는 suspense 관련 기능을 사용할 수 없었고 `useSuspenseQuery`, 즉 `GET`요청을 사용한 경우에만 이를 이용할 수 있었다. 이를 위해 백엔드와 함께 메서드를 변경했다.
+
+<br/ >이제 서버에서 토큰을 확인해 로그인여부를 구분할 수 있으므로 필요한 API를 구분해 불러왔다. 이렇게 함으로써 스트리밍도 적용할 수 있게 되었다. 홈 배너, 카테고리등은 SSR를 통해 구현할 수 있기 때문에 적용해줬다.
+
+### 커스텀 훅 구현
+
+####  useScroll()훅 구현
+  실질적으로 스크롤 관련해서 필요한 상태는 `isVisible`이다. 커스텀훅을 만들고 이 값만 받아오도록 수정했다.
+####  컴포넌트 화
+  홈 배너는 아예 다른 구역이기 때문에 컴포넌트화 했고, 구분할 수 있는 부분들은 구분해줬다.
+####  useLocation()훅 리팩토링
+  코드 내부에서 위치를 받아오는 로직이 있었는데, 이 훅 역시 분리해줘서 가독성을 높여줬다.
+
+# 리팩토링 후
+```ts
+//page.tsx(RSC)
+export default function Home() {
+  const isLogin = cookies().get('accessToken') !== undefined;
+
+  return (
+    <main className="w-full flex flex-col pb-[40px] bg-white shadow-mainShadow">
+      <HomeContent isLogin={isLogin}>
+        <HomeBanner />
+        <UIList />
+      </HomeContent>
+    </main>
+  );
+}
+```
+
+```ts
+//homeContent.tsx(CC)
+export default function HomeContent({
+  isLogin,
+  children,
+}: {
+  isLogin: boolean;
+  children: React.ReactNode;
+}) {
+  const MAINARRAY = mainArray;
+  const { clubCards, recommendClubCards } = useGeolocation(isLogin);
+  const { isVisible } = useScroll();
+
+  return (
+    <>
+      <SearchHeader isHomeOrResultPage className="sticky" />
+      <Tabs
+        tabArray={MAINARRAY}
+        from="home"
+        className={`stickytransition-transform duration-300 ease-in-out z-[9] top-[58px] ${
+          isVisible ? 'translate-y-0' : '-translate-y-300'
+        }`}
+      />
+      {children}
+      <HomeCardList title="근처에서 즐길 수 있는 스포츠예요" Card={clubCards} />
+      <HomeCardList title="이런 스포츠 어때요?" Card={recommendClubCards} />
+      <Footer />
+    </>
+  );
+}
+```
+
+훨씬 깔끔해졌다.
+
+선언형 컴포넌트를 사용함으로써 분기처리를 할 필요가 없어졌고, 커스텀 훅을 분리하여 필요한 상태만 가져와 사용하여 가독성이 좋아졌다. 또한 컴포넌트로 분리함으로써 무슨 역할을 하는지 알기 쉬워졌다.
+
+SSR 및 스트리밍을 적용해서 `pre-rendering`이 가능한 부분은 미리 렌더링 해주고, 부분적으로 `Suspense`를 걸어 UX를 향상시켰다.
+
+<br />
+### 기존 홈 로딩
+<img
+  src="/png/tig/250127-181651.png"
+  alt="기존홈로딩"
+  width={200}
+  height={300}
+/>
+<br />
+### 현재 홈 로딩
+<img
+  src="/png/tig/250127-181728.png"
+  alt="기존홈로딩"
+  width={200}
+  height={300}
+/>
+
+<br />
+
+# 폰트 개선
+
+```css
+@font-face {
+  font-family: 'Pretendard';
+  src: url('../styles/fonts/Pretendard-Bold.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('../styles/fonts/Pretendard-SemiBold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('../styles/fonts/Pretendard-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('../styles/fonts/Pretendard-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+* {
+  ...
+  font-family: Pretendard, 'Pretendard Variable', -apple-system,
+    BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI',
+    'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+}
+```
+
+![250127-183217](/png/tig/250127-183217.png)
+`otf`방식을 사용하고 있었다. 이 방식을 채택했던 이유는 이렇게 해야 모바일 환경에서도 깨지지 않는다고 생각했기 떄문이다.
+
+하지만 이 방식은 네트워크상 시간소요가 과하게 되었고, 무엇보다 SSR를 적용을 하니 깜빡임현상이 일어났다.
+
+<br />
+`otf`는 OpenType Font의 약자로 일반폰트형식이지만 웹 환경 최적화가 이루어져있지 않기
+때문에 용량이 크고 로딩하는데 시간이 오래걸렸다. 그래서 이를 `woff`, Web Open Font
+Format으로 변경해줬다.
+
+```css
+* {
+  box-sizing: border-box;
+  font-size: 16px;
+  padding: 0;
+  margin: 0;
+  font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui,
+    Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR',
+    'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+}
+```
+
+```ts
+import localFont from 'next/font/local';
+
+const pretendard = localFont({
+  src: '../styles/fonts/PretendardVariable.woff2',
+  display: 'swap',
+  weight: '45 920',
+});
+...
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="ko">
+      <body className={pretendard.className}>
+  ...
+```
+![250127-183034](/png/tig/250127-183034.png)
+`next/font/local`을 통해 최적화까지 거쳐주니 속도를 500% 향상시킬 수 있었고, `display: swap`을 통해 깜빡임 현상도 없앨 수 있었다.
