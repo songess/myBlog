@@ -295,3 +295,25 @@ export default function WishListPage() {
 ```
 
 반환값을 설정해주면 `queryKey`만을 사용하고도 데이터를 가져와 사용할 수 있다.
+
+# Devtools
+
+머릿속에서는 되야할 거 같지만 왜인지 적용이 안되는 경우가 있다. 이럴 경우 `Devtools`를 통해 디버깅할 수 있다.
+
+`@tanstack/react-query-devtools`를 깔아주고, `ReactQueryProvider` 안에 선언해준다.
+
+```ts
+<body className={pretendard.className}>
+  ...
+  <ReactQueryProvider>
+    {children}
+    {process.env.NODE_ENV === 'development' && (
+      <ReactQueryDevtools position="right" />
+    )}
+  </ReactQueryProvider>
+  ...
+</body>
+```
+이제 로컬서버를 띄워보면 데브툴을 확인할 수 있다.
+![devtools](/png/tanstackquery/250127-185139.png)
+
