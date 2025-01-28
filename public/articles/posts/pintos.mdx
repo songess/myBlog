@@ -1,13 +1,13 @@
 ---
-title: 핀토스 프로젝트 시작
+title: 핀토스 프로젝트
 date: 2024-09-23
-excerpt: prj1
+excerpt: prj
 image: /png/pintos.png
 id: pintos
 category: 운영체제
 ---
 
-## 프로젝트 시작
+# prj1
 
 내가 커맨드를 입력하면 운영체제는 이를 읽고 올바른 프로그램을 실행해야 한다. 현재 제공되어진 `pintos skeleton`은 운영체제가 제대로 구성되어있지 않아 올바른 실행이 불가능하다.
 
@@ -21,9 +21,7 @@ category: 운영체제
 
 ## argument passing 구현기
 
-
 구현을 하고 보면 다음과 같이 뜨는 것을 확인할 수 있다. 처음에는 제대로 짠 코드라고 생각했다. 하지만 `PHYS-BASE` 가 뭔지 찾아보면서 무언가 잘못되었음을 깨달았다. `PHTS_BASE` 는 stack의 탑 부분이라고 한다(아마 유저 영역을 말하는 거 같다). 그래서 일반적으로 `0xc0000000` 이 되고, 이는 곧 커널 가상메모리의 시작점이라고 한다. 즉 `c0000000` 이후는 커널 영역이라는 소리다. 그럼 커널 자체도 프로세스이기 때문에 메모리에 적재되어 있을 거고, `S...S........S...` 이 부분은 커널 영역이란 소리다. `bffffff0` 이 부분이 내가 스택을 만든 곳이라는 소린데 아무것도 적재되어 있지 않다. 코드에서 잘못된 부분을 찾아 고치니 정상적으로 스택이 쌓이는 것을 확인할 수 있었다.
-
 
 이제 패스를 위해 `system call!`을 역추적해본다.
 
@@ -202,3 +200,73 @@ f->eax = fibonacci_(*(int*)(f->esp+4));
 ```
 
 반환받아야할게 있다면 `eax` 에 매핑시켜줘야한다….
+
+# prj2
+
+### syn-write, syn-read를 해결해보자
+
+prj1에서 `child-lock`, `memory_lock`을 사용해서 부모프로세스가 자식프로세스를 기다리게 구현했다. `process_wait()`의 역할은 부모가 자식을 기다리고 리핑해주는 건데, 이 부분을 `child-lock`을 처음에 0으로 선언하고, 자식이 `process_exit()`을 호출할때 release해주고 부모가 반복문을 돌며 해당하는 자식 tid가 release해주면 이를 받고, 메모리 해제를 진행하고 `memory_lock`을 풀어줘 `process_exit()`이 메모리가 해제되고나서 정상적으로 종료되게 해줬다. 이 과정을 통해 부모프로세스는 자식프로세스를 기다리고 종료한다.
+
+하지만 놓친부분이 있다. 부모프로세스가 자식이 메모리에 적재되기 전에 종료되는 경우가 발생할 수 있다. 자식이 적재되어야 semaphore도 정상적으로 설정되는데 이게 설정되기 전에 부모가 종료되어버리면 자식은 고아가 된다. 이 문제를 해결하기 위해 새로운 semaphore `load_lock`을 새롭게 설정하고 처음에 0으로 초기화해준다. `process_execute()`에서 쓰레드를 새롭게 만들면(자식을 만들면, 이는 start_process()에 의해 만들어짐) `load_lock`을 acquire로 만들어 대기시킨다. `start_process()`에서 로드(`load()`가 성공하건말건 종료되면 `load_lock`을 release해주어 부모가 다음 동작을 진행할 수 있게 만든다.
+
+그럼에도 정상적으로 실행되지 않는다. prj1에서 설정한 걸로 `process_wait()`이 항상 정상적으로 동작할까? `load()`는 실행은 완료되었지만 실패했다면 semaphore설정이 되지 않았기 때문에 비정상적으로 종료되었을 수 있다. 그렇다면 실패했을때를 처리해보자. 로드가 실패하면 `load()`의 반환값은 false가 된다. 이렇게 된다면 flag를 1로 처리하고, 종료시켜버린다. 그리고 `process_execute()`에서 flag가 1인게 있는지 반복문을 돌며 확인하고, 만약 있다면 `process_wait()`을 호출해 리핑해준다. `exit()`도 자식쓰레드를 돌며 혹시라도 정상적으로 로드되지 않은게 있다면 리핑해주고 `file_close()`를 호출해 파일을 닫아주고 exit하게 만들어준다.
+
+그리고 로드가 성공하면 `file_deny_write()`을 통해 쓸 수 없게 만들어주고, 현재 파일이 무엇인지 저장한다.
+
+# prj3
+
+`init_thread()`를 통해 만들어지는 쓰레드는 `THREAD_BLOCKED`로 만들어진다. 이는 `thread_create()`에서 호출되고 있는데, init을 호출하고 status를 `THREAD_READY`로 만들고 레디큐에 집어넣는다.
+
+`thread_init()`은 OS 부팅 시 최초에 한번 실행되는 함수로, 여기서 생성된 스레드는 `initial_thread`가 되고 바로 `THREAD_RUNNING`상태가 된다. 이는 다른 스레드와는 다르게 `thread_create()`을 이용하지 않기 때문에 페이지를 할당받지 않고 커널스택내부에 있는 구조체를 그대로 사용해 메모리를 잡아먹지 않는다. 따라서 `thread_schedule_tail()`에서 `initial_thread`가 끝날 때에는 메모리를 free하지 않는다. 그리고 이 스레드는 `idle_thread`가 되는데, 이는 레디큐가 비었을 때 CPU가 놀지 않고 `idle`한 스레드를 실행할 수 있게 해준다.
+
+쓰레드는 실행되다가 인터럽트가 걸리면 `thread_yield()`가 실행된다. 그럼 현재 `THREAD_RUNNING`스레드는 `THREAD_READY`상태로 바뀌고 레디큐의 맨 뒤로 들어간다. 그리고 `schedule`이 호출되어 다음에 실행될 스레드를 레디큐의 가장 앞에서 찾는다. 그럼 `switch_threads()`를 통해 스와핑이 일어난다. 이후 `thread_schedule_tail()`이 호출된다. 여기서는 인자로 넘어온 큐의 마지막 스레드가 `THREAD_DYING`상태면 페이지를 free하고 종료하는 역할을 한다. 그리고 현재 실행중인 스레드의 상태를 `THREAD_RUNNING`으로 바꾸어 준다. 또한 `timer_tick`을 0으로 초기화한다.
+
+### 큰 흐름 한번 더 정리
+
+`process_execute(file)`을 통해 프로세스가 실행된다. 그럼 이는 file에 해당하는 페이지를 만들고, `thread_create(,start_process(),)`를 통해 스레드를 생성한다. `init_thread`에 의해 `THREAD_BLOCKED`였던 스레드는 `thread_unblock()`을 통해 레디큐에 들어간다. 스레드를 생성하면 세마를 걸어 메모리에 적재되는 것을 기다린다. `start_process()`에서는 `load()`를 호출해 메모리에 적재한다. 로드가 완료되면 세마를 풀어준다. 만약 정상적으로 로드하지 못했다면 페이지를 해제하고 `flag`를 1로 바꾸고 `exit(-1)`을 통해 종료한다. `exit()`시스템콜에서는 `thread_exit()`이 호출되는데 여기선 현재 스레드의 상태를 `THREAD_DYING`으로 바꿔주고, `schedule()`을 호출해 다음 프로세스 호출 및 현재 프로세스를 제거한다. `process_execute`에서는 만약 자식 중 `flag`의 값이 1이 있다면 이 자식의 status를 반환, 아니면 tid를 반환한다.
+
+## 이번 프로젝트에서 수행
+
+### alarm clock
+
+`timer_sleep()`이 걸리면 `block_list`로 보낸다. 이를 위해 `block_list`를 구현했다. 기다릴 시간을 체크해야 함으로 쓰레드의 멤버로 sleep_ticks를 추가해줬다. 리스트로 보낼 때 tick을 추가로 보내줬고, `timer_interrupt()`의 `thread_tick()`에서 `block_list`를 순회하며 1씩 감소하고 0이되면 `ready_list`로 옮기도록 했다.
+
+### priority
+
+이제 우선순위를 설정하자. 큐에 프로세스를 넣을때 `list_push_back()`대신 `list_insert_ordered()`를 사용할 것이다. 이를 위해선 세번째 인자에 less함수를 만들어야 함으로 thread.c에 `thread_priority_less()`로 만들어주었다. 이걸 사용하는 함수는 전부 바꿔줬다.
+
+근데 현재 `RUNNING_THREAD`의 우선순위와도 비교해 앞선다면 `pre-emptive`를 발생시켜 바꾸어줘야 했다. thread_create()에서 새로만들어진 스레드의 우선순위가 높다면 `thread_yield()`를 호출했다.
+
+또한 매 초 thread_aging을 해줘야 하기때문에 함수를 만들어 `thread_tick()`에 추가해줬다.
+
+## 트러블 슈팅
+
+#### `timer_sleep()` 로직에 대한 이해부족
+
+#### `sema_up()`수정
+
+    `sema_down()`에서 정렬하면 up은 안 건드려도 될 줄 알았는데, block상태에서도 우선순위가 변할 수 있으므로 정렬, 그리고 unblock이후 현재 스레드와의 우선순위 비교가 필요했다.
+
+#### `init_thread`,`thread_init()`에서 틱 초기화
+
+#### `thread_set_priority()`수정
+
+    사용하는 코드가 없는 거 같아서 건들지 않았으나, examples들에서 사용하고 있었다.이에따라 현재 쓰레드와의 우선순위 비교를 통해 바뀐 우선순위가 더 낮다면 yield 해줬다.
+
+#### 인터럽트핸들러 껐다키기
+
+    이거는 신경을 안썼는데, 뭔가 잘 안되는 거 같아서 `timer_interrupt()`에서 작업을 수행하는 동안은 타이머 껐다켜줬다.
+
+# prj4
+
+현재 핀토스는 가상메모리를 사용하고 있지 않다. 가상 메모리를 사용하지 않으면 메모리가 낭비되어 fragmentation이 발생해 메모리 공간이 남아있음에도 불구하고 프로세스를 더 돌릴 수 없게된다. page table, page fault handler를 만들어 프로세스를 가상메모리에 할당해 메모리를 최적화하여 사용할 수 있게 한다.
+가상메모리를 만든다고 해서 메모리가 무한대가 되는 것은 아니다. 유저공간 3GB를 모두 할당하게 되면 더이상 할당을 할 수 없는데, 이때 disk swap을 사용할 수 있다. disk에 여분의 공간을 만들어 두고, 물리 메모리에 더 이상 공간이 없다면 disk 영역에 저장하여메모리를 초과함에도 프로세스를 돌 수 있게 만들어준다.
+또한 현재 핀토스의 스택 크기는 4KB로 고정되어 있다. 이 또한 유연하게 만들어 더 많은 argument가 들어와도 감당할 수 있게 해준다.
+
+#### 1. Page fault가 발생하는 이유와 이를 handling하는 전반적인 과정을 서술
+   page table을 사용해 가상 메모리(ve)와 물리 메모리(pfn)을 연결시켰다. page fault가 발생했다면 가상메모리에 연결되어 있는 물리 메모리가 존재하지 않기 때문에 발생하는 것이다.
+   유효한 접근인지 확인하고, 유효한 접근이라면 해당 가상주소의 vme를 찾아본다. vme의 접근이 유효하다면 handle\_\_mm_fault()를 호출해 파일 혹은 스왑페이지에 있는 걸 가져온다. 만약 vme가 null이라면 stack growth가 가능한지 확인해보고 stack growth 시킨다.
+#### 2. Disk swap 발생 시 사용한 page replacement algorithm에 대해 서술
+   수업시간에 배운 clock algorithm을 사용했다. access bit 그리고 dirty bit를 사용한다. access bit은 처음 vme가 추가될 때 1로 세팅된다. 그리고 victim 포인터가 page를 가리키게 한다. fault가 발생하면 victim 포인터가 가리키고 있는 페이지의 access bit를 확인한다. 만약 1이라면 한 번의 기회를 더 주어 0으로 내리고 다음 페이지를 확인한다. 0 이라면 해당 페이지의 연결을 끊어주고 swap-out을 시킨다. 만약 dirty bit가 1이라면 해당 페이지는 write이 발생한 것으로 flush가 필요해, 이를 올바르게 반영시켜주고, dirty bit이 0이라면 별다른 작업 없이 swap out 해준다.
+#### 3. Stack growth 구현 시 stack 확장 여부를 판단할 수 있는 방법에 대해 서술
+   page fault가 발생했을 때 주어진 stack보다 큰 영역이 할당될 수 있다. pagefault()에서 find_vme()를 통해 fault가 발생한 페이지가 가상페이지가 아니였다면 이는 stack 영역의 후보고, 8MB 범위 안에 있는 올바른 영역인지 확인 후 valid하다면 stack을 확장해준다.
