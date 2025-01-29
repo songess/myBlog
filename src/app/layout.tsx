@@ -4,6 +4,8 @@ import { ThemeProvider } from 'next-themes';
 import BlogHeader from '@/components/all/BlogHeader';
 import localFont from 'next/font/local';
 
+export const dynamic = 'force-static';
+
 const pretendard = localFont({
   src: '../styles/fonts/Pretendard-Bold.otf',
   display: 'swap',
