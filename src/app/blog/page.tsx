@@ -1,25 +1,25 @@
 import BlogPageContent from '@/components/blog/BlogPageContent';
-import { CATEGORY_ARR } from '@/constant/category';
 import { getSortedContentList } from '@/lib/parseContent';
-import { CategoryType, Post } from '@/type/type';
-import { headers } from 'next/headers';
+import { Post } from '@/type/type';
 
 export default async function BlogPage() {
-  const myPosts = await getSortedContentList('posts') as Post[];
-  const category = decodeURIComponent(
-    headers().get('x-query-category') || ''
-  ) as CategoryType;
-  const search = decodeURIComponent(headers().get('x-query-search') || '');
+  const myPosts = (await getSortedContentList('posts')) as Post[];
+  // const category = (decodeURIComponent(searchParams.category || '') ||
+  //   CATEGORY_ARR[0]) as CategoryType;
+  // const search = decodeURIComponent(searchParams.search || '');
 
-  const filteredPosts =
-    !category || category === CATEGORY_ARR[0]
-      ? myPosts
-      : myPosts.filter((post) => post.category === category);
-  const filteredPostsBySearch = filteredPosts.filter(
-    (post) =>
-      post.title.toLowerCase().includes(search.toLowerCase()) ||
-      post.excerpt.toLowerCase().includes(search.toLowerCase())
-  );
+  // console.log('category', category);
+  // console.log('search', search);
 
-  return <BlogPageContent posts={filteredPostsBySearch} category={category} />;
+  // const filteredPosts =
+  //   !category || category === CATEGORY_ARR[0]
+  //     ? myPosts
+  //     : myPosts.filter((post) => post.category === category);
+  // const filteredPostsBySearch = filteredPosts.filter(
+  //   (post) =>
+  //     post.title.toLowerCase().includes(search.toLowerCase()) ||
+  //     post.excerpt.toLowerCase().includes(search.toLowerCase())
+  // );
+
+  return <BlogPageContent posts={myPosts} />;
 }

@@ -1,21 +1,36 @@
 'use client';
-
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Post } from '@/type/type';
 import { CATEGORY_ARR } from '@/constant/category';
-import { CategoryType } from '@/type/type';
 
 interface Props {
   posts: Post[];
-  category: CategoryType;
 }
 
-export default function BlogPageContent({ posts, category }: Props) {
+export default function BlogPageContent({ posts }: Props) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  console.log(searchParams);
+  console.log(searchParams?.get('search') || '검색어 없음');
+  const search = searchParams?.get('search') || '';
+  console.log(searchParams?.get('category') || '카테고리 없음');
+  const category = searchParams?.get('category') || '';
+  // 검색어와 카테고리로 게시물 필터링
+  const filteredPosts = posts.filter((post) => {
+    const matchesSearch = post.title
+      .toLowerCase()
+      .includes(search.toLowerCase());
+
+    const matchesCategory =
+      category === '전체' ? post : post.category === category;
+
+    return matchesSearch && matchesCategory;
+  });
+
   return (
     <div className="container mx-auto pb-8 px-4">
       <Tabs
@@ -36,7 +51,7 @@ export default function BlogPageContent({ posts, category }: Props) {
       </Tabs>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {posts.map((post, index) => (
+        {filteredPosts.map((post, index) => (
           <Card
             key={index}
             className="cursor-pointer"
@@ -67,9 +82,9 @@ export default function BlogPageContent({ posts, category }: Props) {
         ))}
       </div>
 
-      {posts.length === 0 && (
+      {filteredPosts.length === 0 && (
         <p className="text-center text-muted-foreground mt-8">
-          이 카테고리에는 아직 게시물이 없습니다.
+          검색 결과가 없습니다.
         </p>
       )}
     </div>
