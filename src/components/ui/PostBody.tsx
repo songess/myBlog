@@ -1,5 +1,5 @@
 import { MDXRemote } from 'next-mdx-remote/rsc';
-import rehypePrettyCode from 'rehype-pretty-code';
+import rehypePrettyCode, { type Options } from 'rehype-pretty-code';
 
 interface Props {
   contentData: string;
@@ -8,16 +8,10 @@ interface Props {
 /** TODO
  * 코드블럭 테마 추가하기 (다크모드일 때 자동으로 바뀌게,, 하고싶당)
  */
-// const prettyCodeOptions: any = {
-//   theme: {
-//     dark: JSON.parse(
-//       readFileSync('./code_theme/one-dark-pro-darker.json', 'utf-8')
-//     ),
-//     light: JSON.parse(
-//       readFileSync('./code_theme/atom-one-light.json', 'utf-8')
-//     ),
-//   },
-// };
+const prettyCodeOptions: Options = {
+  keepBackground: true,
+  theme: 'slack-dark',
+};
 
 function PostBody({ contentData }: Props) {
   return (
@@ -26,7 +20,7 @@ function PostBody({ contentData }: Props) {
         source={contentData}
         options={{
           mdxOptions: {
-            rehypePlugins: [[rehypePrettyCode]],
+            rehypePlugins: [[rehypePrettyCode, prettyCodeOptions]],
           },
         }}
       />

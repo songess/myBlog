@@ -2,6 +2,13 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeProvider } from 'next-themes';
 import BlogHeader from '@/components/all/BlogHeader';
+import localFont from 'next/font/local';
+
+const pretendard = localFont({
+  src: '../styles/fonts/Pretendard-Bold.otf',
+  display: 'swap',
+  weight: '45 920',
+});
 
 export const metadata: Metadata = {
   title: 'songess blog',
@@ -27,7 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="kr" suppressHydrationWarning>
-      <body className="pt-[70px]">
+      <body className={`${pretendard.className} pt-[70px]`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <BlogHeader />
           {children}

@@ -170,7 +170,7 @@ strlcpy(tempFileName,file_name,strlen(file_name)+1);
 
 `exception.c` 에서
 
-```
+```c
 if (is_kernel_vaddr(fault_addr) || !user) {
     exit_(-1);
   }
