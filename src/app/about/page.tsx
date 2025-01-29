@@ -34,7 +34,7 @@ export default function About() {
   return (
     <div className="container mx-auto pb-8 relative px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="flex flex-col md:flex-row items-center md:items-start mb-8 space-y-4 md:space-y-0 md:space-x-8">
+        <div className="flex flex-col md:flex-row items-center md:items-start mb-8 space-y-4 md:space-y-0 md:space-x-8 animate-slideUpFade opacity-0">
           <div className="w-[200px] h-[200px] relative shrink-0">
             <Image
               src="/png/profile.jpeg"
@@ -53,7 +53,7 @@ export default function About() {
           </div>
         </div>
 
-        <Card className="mb-8">
+        <Card className="mb-8 animate-slideUpFade delay-150 opacity-0">
           <CardContent className="p-6">
             <h2 className="text-2xl font-semibold mb-4 p-0">기술 스택</h2>
             <div className="flex flex-wrap gap-2">
@@ -66,7 +66,7 @@ export default function About() {
           </CardContent>
         </Card>
 
-        <Card className="mb-8">
+        <Card className="mb-8 animate-slideUpFade delay-300 opacity-0">
           <CardContent className="p-6">
             <h2 className="text-2xl font-semibold mb-4 p-0">교육</h2>
             <div className="space-y-3">
@@ -92,7 +92,7 @@ export default function About() {
           </CardContent>
         </Card>
 
-        <div className="mb-8">
+        <div className="mb-8 animate-slideUpFade delay-500 opacity-0">
           <h2 className="text-2xl font-semibold mb-6">프로젝트</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project, index) => (
@@ -136,7 +136,7 @@ export default function About() {
           </div>
         </div>
 
-        <Card>
+        <Card className="animate-slideUpFade delay-700 opacity-0">
           <CardContent className="p-6">
             <h2 className="text-2xl font-semibold mb-4">연락처</h2>
             <div className="flex space-x-4">

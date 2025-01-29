@@ -11,7 +11,7 @@ export default async function Page() {
   const posts = (await getSortedContentList('posts')) as Post[];
   return (
     <main className="container mx-auto px-4 h-full">
-      <section className="mb-16">
+      <section className="mb-16 animate-fadeIn opacity-0">
         <h1 className="text-4xl font-bold mb-4">기록하며 성장하는 블로거</h1>
         <p className="text-xl text-muted-foreground mb-4">
           안녕하세요😁
@@ -20,7 +20,7 @@ export default async function Page() {
         </p>
       </section>
 
-      <section>
+      <section className="animate-fadeIn delay-150 opacity-0">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-bold">나의 포스팅</h2>
           <Button variant="ghost" className="text-muted-foreground" asChild>

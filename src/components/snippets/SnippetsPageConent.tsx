@@ -84,7 +84,7 @@ export default function SnippetsPageContent({
         {filteredSnippets.map((snippet) => (
           <Card
             key={snippet.id}
-            className="flex flex-col cursor-pointer hover:shadow-md"
+            className="flex flex-col cursor-pointer hover:shadow-md animate-slideUpFade"
             onClick={() => {
               router.push(`/snippets/${snippet.id}`);
             }}

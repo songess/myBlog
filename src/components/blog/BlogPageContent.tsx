@@ -54,7 +54,7 @@ export default function BlogPageContent({ posts }: Props) {
         {filteredPosts.map((post, index) => (
           <Card
             key={index}
-            className="cursor-pointer"
+            className="cursor-pointer animate-slideUpFade"
             onClick={() => {
               router.push(`/post/${post.id}`);
             }}
