@@ -1,0 +1,139 @@
+---
+title: 스프링
+date: 2025-02-24
+excerpt: 나에게도 봄이 올까요
+image: /png/spring/250228-205635.png
+id: spring
+category: BE
+---
+
+봄이다. 봄이 온 기념으로 나는 백엔드 공부를 시작해본다.
+
+<br /> 김영한의 스프링 입문편으로 시작을 할 생각이다. 따라가보자.
+
+# 프로젝트 설정
+
+버전은 11버전으로 진행하라고 한다. 오라클에 들어가 `11.0.25`버전을 설치해줬고, 기본 설정 버전을 변경해주었다.
+
+인줄 알았으나, 그대로 했더니 빌드 오류가 떠서 17버전으로 바꿔주었다.
+
+```shell
+$ java -version # 현 버전 확인
+$ /usr/libexec/java_home -V # 설치된 모든 jdk 버전 확인
+$ vim ~/.zshrc # 환경변수를 추기하기 위해 vim 에디터 접속
+export JAVA_HOME=$(/usr/libexec/java_home -v 1x.xx.xx) # vim 에디터에 환경변수 등록
+source ~/.zshrc # 환경변수 등록
+$ java -version # 버전 바뀌었는 지 학인
+```
+
+`https://start.spring.io/`에서 파일을 설정하고 다운받으면 cra처럼 개발을 위해 만들어진 폴더를 받을 수 있다.
+
+## gradle
+
+`java`기반으로 프로젝트를 쉽게 빌드하고 관리할 수 있도록 도와주는 자동화도구이다.
+
+종속성 관리, 빌드 및 배포 자동화, 유연한 설정 및 확장성 제공 등을 수행한다.
+
+# Welcome Page
+
+`static/index.html`을 작성하면 왤컴페이지를 만들 수 있다.
+
+# Controller
+
+MVC의 Controller이고 라우팅과 로직 연결을 담당한다.
+
+```java
+@Controller// 기본 어노테이션 설정
+public class HelloController {
+    @GetMapping("hello") // url의 path 매칭(라우팅)
+    public String hello(Model model) {
+        model.addAttribute("data", "hello!!"); // k-v
+        return "hello"; // resources/templates/@ 호출 (view 호출)
+    }
+}
+```
+
+# HTML 템플릿
+
+여기에도 html을 띄울 수 있다. php느낌의 `thymeleaf`를 사용한다. 자바기반의 php로 이해했다.
+
+컨트롤러에서 데이터처리를 통해 뷰를 호출하면 여기서 값을 받는다.
+
+```html
+<!--resources/templates/hello.html-->
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!--th: thymeleaf 문법-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+</head>
+<body>
+<p th:text="'안녕하세요.' + ${data}">안녕하세요, 손님</p>
+</body>
+</html>
+```
+
+html의 문법을 사용하고, th라는 `thymeleaf`문법을 사용한다. 
+
+<br/> 기본적으로 java파일이 아닌 파일들은 `resources`에 위치하고, 라우팅에 의해 호출되는 파일들을 `templates`에 위치한다.
+
+# 자동화
+```java
+// build.gradle
+dependencies {
+  compileOnly 'org.springframework.boot:spring-boot-devtools'
+}
+```
+를 추가해주고, 설정-컴파일러-automake, 고급설정-automake 옵션을 켜주면 자동화가 된다고 하나, FE처럼 바로바로 반영되지는 않았다.
+
+# 빌드하고 실행하기
+터미널로 가서 해당 폴더로 이동한 후
+```shell
+./gradlew build
+cd build/libs
+java -jar @.jar
+```
+를 실행하면 된다.
+
+# 웹 개발 기초
+## 정적컨텐츠
+만들어진 html을 그대로 반환한다.
+
+톰캣서버가 받으면 관련 컨트롤러가 있는지 확인하고, 없으니 `resources/static/*.html`을 확인하여 반환한다. 
+## MVC와 템플릿엔진
+php처럼 동작. 컨트롤러가 확인하여 view에 model을 넘긴다. 이를 템플릿엔진이 처리하여 반환한다.
+```java
+@GetMapping("hello-mvc")
+    public String helloMvc(@RequestParam("name") String name, Model model){
+        model.addAttribute("name", name);
+        return "hello-template";
+    }
+```
+
+Controller는 viewReslover를 호출한다.
+## API
+API를 넘겨준다.
+
+`@ResponseBody`어노테이션을 사용하면 `viewResolver`대신 `HttpMessageConverter`가 동작한다.
+즉 view를 반환하는게 아니라 데이터를 반환한다. 
+HTTP의 body에 내용이 반환된다.
+```java
+// 문자열을 반환
+@GetMapping("hello-string")
+@ResponseBody
+public String helloString(@RequestParam("name") String name){
+    return "hello " + name;
+}
+
+//json을 반환
+@GetMapping("hello-api")
+@ResponseBody
+public Hello helloApi(@RequestParam("name") String name){
+    Hello hello = new Hello();
+    hello.setName(setName);
+    return hello;
+}
+```
+객체를 반환하면 spring은 디폴트로 json 형식을 반환한다. 
