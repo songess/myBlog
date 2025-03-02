@@ -295,3 +295,49 @@ disjoint set을 사용하는 건 어떨까 싶었지만 집합 내 우선순위�
 
 가중치를 기준으로 오름차순 정렬을 하여 뽑기 시작한다. 뽑을 때마다 집합으로 묶어주고, 새로 뽑은 간선의 양 끝(노드)이 이미 집합이라면 그 간선은 무시하는 방법으로 설계한다.
 
+# 외판원 순회
+비트마스킹 + DP를 사용한 문제. 다만 시간초과가 계속 떠서 힘들었다.
+
+```c++
+//처음에 짠 코드
+void dfs(int N, const vector<vector<int>> &cost_graph, int cur_node,int answer,int start,int state,vector<vector<int>> &dp){
+    if(dp[state][cur_node]!=-1 && (dp[state][cur_node]<answer)){
+        return;
+    }
+    dp[state][cur_node]=answer;
+    if(state==(1<<N)-1){
+        min_=min(min_,dp[state][cur_node]+cost_graph[cur_node][start]);
+    }
+    for(int i =0;i<N;i++){
+        if(state&(1<<i) || cost_graph[cur_node][i]==0) continue;
+        dfs(N,cost_graph,i,cost_graph[cur_node][i]+answer,start,state|(1<<i),dp);
+    }
+}
+```
+
+
+### 순회하는 최소경로는 결국 똑같다
+최소경로가 `1->2->3->4->5->1`라고 한다면, 1에서 출발하든 5에서 출발하든 결국 최소경로는 같다
+### 가지치기
+전역변수를 설정하고, 최종상태에 이르면 전역변수를 비교하는 쪽으로 짰는데, 아마 불필요한 재귀가 계속 발생했던 것 같다.
+
+전역변수가 아니라 반환값을 통해 값을 관리하도록 수정했다.
+
+
+```c++
+// 수정
+int dfs(int N, const vector<vector<int>> &cost_graph, int cur_node,int start,int state,vector<vector<int>> &dp){
+    if(state==(1<<N)-1){
+        if(cost_graph[cur_node][start]==0) return INF;
+        else return cost_graph[cur_node][start];
+    }
+    if(dp[state][cur_node]!=-1) return dp[state][cur_node];
+    dp[state][cur_node] = INF;
+    for(int i =0;i<N;i++){
+        if(cost_graph[cur_node][i]==0) continue;
+        if(state&(1<<i)) continue;
+        dp[state][cur_node] = min(dp[state][cur_node],cost_graph[cur_node][i] + dfs(N,cost_graph,i,start,state|(1<<i),dp));
+    }
+    return dp[state][cur_node];
+}
+```
