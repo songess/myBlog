@@ -64,6 +64,21 @@ int result = MathUtil.add(3, 5);
 
 # 리플렉션
 리플렉션은 런타임에 클래스, 메서드, 필드 정보를 동적으로 확인하고 접근할 수 있게 해주는 기능이다.
+```java
+class Member {
+    private String name;
+}
+
+public class ReflectionExample {
+    public static void main(String[] args) {
+        Class<Member> clazz = Member.class;  //  클래스 정보를 가져옴
+        System.out.println(clazz.getName()); // 출력: Member
+    }
+}
+```
+## `Class<T>`란
+java의 클래스에 대한 메타데이터를 담고있는 객체이다.
+
 
 # 스트림
 `List`, `Set`등의 자료형을 간결하게 순회할 수 있도록 돕는다.

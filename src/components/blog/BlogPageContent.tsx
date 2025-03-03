@@ -41,7 +41,7 @@ export default function BlogPageContent({ posts }: Props) {
         }}
         value={category}
       >
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           {CATEGORY_ARR.map((value) => (
             <TabsTrigger key={value} value={value}>
               {value}
@@ -54,7 +54,8 @@ export default function BlogPageContent({ posts }: Props) {
         {filteredPosts.map((post, index) => (
           <Card
             key={index}
-            className="cursor-pointer animate-slideUpFade"
+            className="cursor-pointer animate-slideUpFade opacity-0"
+            style={{ animationDelay: `${Math.floor(index / 4) * 150}ms` }}
             onClick={() => {
               router.push(`/post/${post.id}`);
             }}

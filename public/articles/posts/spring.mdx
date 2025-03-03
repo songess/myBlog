@@ -206,7 +206,7 @@ public void afterEach() {
 
 <br/> 빈을 등록하는 방법은 두 가지다.
 
-1. `@Service`, `@Repository`, `@Autowired` 이용하기
+### 1. `@Service`, `@Repository`, `@Autowired` 이용하기
 
 ```java
 // service/MemberService
@@ -241,7 +241,7 @@ public class MemberService {
 
 등록을 했으면 `@Autowired`를 통해 주입해줄 수 있다.
 
-2. 직접 빈 등록하기
+### 2. 직접 빈 등록하기
 
 ```java
 @Configuration
@@ -265,15 +265,300 @@ public class SpringConfig {
 
 이 방법을 사용하면 레포지토리를 변경한다고 해도 코드의 대부분을 건드는 게 아니라 이 `SpringConfig` 부분만 바꿔주면 된다.
 
+# 회원등록, 조회하기
+회원 등록을 위한 `MemberController`를 만들어준다. 
+`/members/new`로 GET 요청이 오면 컨트롤러에 의한 페이지를 넘기고, POST 요청이 오면 새로운 멤버객체를 만든다.
+이를 위해 회원등록 컨트롤러 `MemberForm`를 만들어줘야 한다. POST요청이 오면 이를 `MemberForm`형식으로 받아 멤버객체를 만들어 `MemberService`에 넣어준다.
+
+또한 `/member`로 요청이 오면 멤버조회를 해준다. `MemberService`에 등록되어 있는 멤버들을 `View`로 넘겨 html로 띄워준다.
+
+```java
+...
+//MemberController
+@Controller // 스프링 컨테이너가 뜰 때 MemberController를 생성하고 관리 해줌
+public class MemberController {
+    private final MemberService memberService;
+
+    // MemberController를 생성할 때 호출
+    @Autowired // spring이 memberService를 스프링 컨테이너에 있는 memberService를 가져다 연결시켜줌(의존관계 주입)
+    public MemberController(MemberService memberService) {
+        this.memberService = memberService;
+    }
+
+    @GetMapping("/members/new") // 회원등록
+    public String createForm() {
+        return "members/createMemberForm";
+    }
+
+    @PostMapping("/members/new") // 회원등록 요청
+    public String create(MemberForm form) { // form의 name-value 쌍을 이용했기 때문에 이렇게 사용(`@ModelAttribute` 디폴트). 만약 post의 body에 담겨있었다면 `@RequestBody`를 사용해야 한다.
+        Member member = new Member(); // member 객체 생성
+        member.setName(form.getName()); // 입력받은 정보가 담긴 form에서 정보를 꺼내 멤버객체에 저장
+
+        memberService.join(member); // member 객체로 join(회원가입)
+
+        return "redirect:/"; // 홈화면 이동
+    }
+
+    @GetMapping("/members") // 회원조회
+    public String list(Model model) { // view에 전달하기 위해 model을 사용
+        List<Member> members = memberService.findMembers(); // 회원 List 가져옴
+
+        model.addAttribute("members",members); // 회원 List를 model에 넣음
+        return "members/memberList"; // view에 전달
+    }
+}
+```
+
+```java
+// MemberForm
+public class MemberForm {
+    // createMemberForm의 input의 name 속성 값인 name과 같아야 함
+    private String name;
+
+    // getter
+    public String getName() {
+        return name;
+    }
+
+    // setter
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+```
+
+# DB 연결
+지금까지 수행한 방법은 코드를 실행하고 메모리상에서 저장하고 있었다. 하지만 이 방법은 프로그램을 종료하면 날라가기때문에 DB에 연동해서 저장해야 한다. 이를 위해 JDBC를 사용한다.
+
+여기서 OCP, 개방-페쇄 원칙을 활용하여 클래스를 바꿔끼워준다.
+
+## h2
+데이터베이스로는 h2를 사용하였다. 온라인에서 간단하게 다운로드받을 수 있고 메모리 상에서 동작하는 디비라 테스트 디비로 적합하다.
+```shell
+$ cd h2 # 다운로드한 h2로 이동
+$ cd bin
+$ chmod 755 h2.sh
+$ ./h2.sh
+```
+이후 디비명, 사용자명, 비밀번호를 등록하면 웹에서 디비가 열린다. 
 
 
-# jdbc란
+```java
+//SpringConfig
+    @Bean
+    public MemberRepository memberRepository() {
+        // return new MemoryMemberRepository();
+        // return new JdbcMemberRepository(dataSource);
+        // return new JdbcTemplateMemberRepository(dataSource);
+        return new JpaMemberRepository(em);
+    }
+```
+레포지토리를 인터페이스로 만들었기 때문에, DB저장소를 변경할때 코드를 전부 바꿀 게 아니라 `SpringConfig`에 있는 멤버레포지토리의 반환값만 변경해준다(즉 변경이 필요한 부품만 갈아준다).
+
+## jdbc란
 java에서 데이터베이스에 접근하고 조작하기 위한 표준 API
 
+가장 쉬운 방법으로 jdbc template을 사용한다. 순수 jdbc보다 보일러 플레이트가 적지만 sql은 직접 작성해야 한다.
+
+```java
+@Configuration
+public class SpringConfig {
+
+    // db와의 연결을 담당하는 jdbc의 db연결 객체
+    private final DataSource dataSource;
+
+    public SpringConfig(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+    ...
+
+    @Bean
+    public MemberRepository memberRepository() {
+        return new JdbcTemplateMemberRepository(dataSource);
+    }
+}
+```
+
+```shell
+# build/gradle
+dependencies {
+	...
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	runtimeOnly 'com.h2database:h2'
+	...
+}
+```
+
+```shell
+# resources/application.properties
+spring.datasource.url=jdbc:h2:tcp://localhost/~/db이름
+spring.datasource.driver-class-name=org.h2.Driver
+spring.datasource.username=사용자이름
+spring.datasource.password=비밀번호
+```
+
+```java
+//JdbcTemplateMemberRepository
+public class JdbcTemplateMemberRepository implements MemberRepository {
+    private final JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public JdbcTemplateMemberRepository(DataSource dataSource) {
+        jdbcTemplate = new JdbcTemplate(dataSource);
+    }
+
+    @Override
+    public Member save(Member member) {
+        SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
+        jdbcInsert.withTableName("member").usingGeneratedKeyColumns("id");
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("name", member.getName());
+
+        Number key = jdbcInsert.executeAndReturnKey(new MapSqlParameterSource(parameters));
+        member.setId(key.longValue());
+        return member;
+    }
+
+    @Override
+    public Optional<Member> findById(Long id) {
+        List<Member> result =
+                jdbcTemplate.query("select * from member where id = ?", memberRowMapper(), id);
+        return result.stream().findAny();
+    }
+
+    @Override
+    public Optional<Member> findByName(String name) {
+        List<Member> result = jdbcTemplate.query("select * from member where name = ?", memberRowMapper(), name);
+        return result.stream().findAny();
+    }
+
+    @Override
+    public List<Member> findAll() {
+        return jdbcTemplate.query("select * from member", memberRowMapper());
+    }
+
+    private RowMapper<Member> memberRowMapper() {
+        return (rs, rowNum) -> {
+            Member member = new Member();
+            member.setId(rs.getLong("id"));
+            member.setName(rs.getString("name"));
+            return member;
+        };
+    }
+}
+```
+
+## JPA
+보일러플레이트는 물론 sql도 JPA가 작성해준다. sql, 데이터중심 설계에서 객체중심 설계로 변화한다.
+
+```groovy
+# build/gradle
+dependencies {
+	...
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	runtimeOnly 'com.h2database:h2'
+	...
+}
+```
+
+```shell
+# resources/application.properties
+spring.jpa.show-sql=true
+spring.jpa.hibernate.ddl-auto=none
+```
+
+```java
+// domain/member
+@Entity // JPA가 관리하는 엔티티, 이 어노테이션을 통해 JPA가 클래스를 DB와 매핑해준다.
+public class Member {
+    
+    @Id // pKey로 인식
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //자동 생성
+
+	...
+}
+```
+
+```java
+// service/memberService
+@Transactional // jpa의 변경사항이 커밋되고 실패시 롤백된다
+public class MemberService {
+	...
+}
+```
+
+```java
+// repository/JpaMemberRepository
+public class JpaMemberRepository implements MemberRepository {
+
+    // EntityManager
+    private final EntityManager em;
+
+    public JpaMemberRepository(EntityManager em) { // DI
+        this.em = em;
+    }
+
+    @Override
+    public Member save(Member member) { // JPA를 사용한 save
+        em.persist(member); // save기능을 제공한다. 커밋이 될때 sql UPDATE문이 적용됨
+        return member;
+    }
+
+    @Override
+    public Optional<Member> findById(Long id) {
+        Member member = em.find(Member.class, id); // pKey에 대해 사용할 수 있음. 리플렉션을 활용해 Member 클래스를 가져와 id값을 찾음
+        return Optional.ofNullable(member);
+    }
+
+    @Override
+    public Optional<Member> findByName(String name) {
+        List<Member> result = em.createQuery("select m from Member m where m.name = :name",Member.class) // pKey가 아닌 값에 대해 쿼리를 만듦
+                .setParameter("name",name)
+                .getResultList();
+        return result.stream().findAny();
+    }
+
+    @Override
+    public List<Member> findAll() {
+        return em.createQuery("select m from Member m", Member.class)
+                .getResultList();
+    }
+}
+```
+
+## 스프링데이터 JPA
+jdbc template의 역할처럼 자주쓰이는 CRUD, findById()등의 기본기능을 제공한다. 
 
 
+# AOP
+공통관심사항(cross-cutting concern)을 묶는다. 시간측정, 로그조회 등 모든 클래스에서 필요한 관심사항을 묶는다.
 
+AOP를 만들게 되면 프록시가 생겨 이를 거치게 된다.
+```java
+@Aspect
+@Component
+public class TraceAop {
 
+    @Around("execution(* hello.hello_spring..*(..))") // AOP를 사용할 위치 설정
+    public Object execute(ProceedingJoinPoint joinPoint) throws Throwable {
+        long start = System.currentTimeMillis(); // 시작 시간 측정
+        System.out.println("START: " + joinPoint.toString());
+        try {
+            return joinPoint.proceed(); // 다음 메서드로 진행
+        } finally {
+            long finish = System.currentTimeMillis(); // 종료 시간 측정
+            long timeMs = finish - start; // 소요 시간 측정
+
+            System.out.println("END: " + joinPoint.toString() + " " + timeMs + "ms");
+        }
+    }
+}
+```
+커스텀 훅과 비슷한가 했더니 다르다. 커스텀 훅은 공통된 로직을 빼놓고 필요한 곳에서 호출해 사용하는 것인데 AOP는 필요한 곳에서 호출하지 않고 자동으로 붙는다.
+
+즉 핵심로직과 분리된 공통적인 관심사항들을 자동으로 결합시킨다.
 
 # 단축키 모음
 `ctrl + option + n`: 새로운 패키지, 클래스를 만들 수 있다.

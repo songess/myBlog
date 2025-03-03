@@ -263,10 +263,10 @@ prj1에서 `child-lock`, `memory_lock`을 사용해서 부모프로세스가 자
 가상메모리를 만든다고 해서 메모리가 무한대가 되는 것은 아니다. 유저공간 3GB를 모두 할당하게 되면 더이상 할당을 할 수 없는데, 이때 disk swap을 사용할 수 있다. disk에 여분의 공간을 만들어 두고, 물리 메모리에 더 이상 공간이 없다면 disk 영역에 저장하여메모리를 초과함에도 프로세스를 돌 수 있게 만들어준다.
 또한 현재 핀토스의 스택 크기는 4KB로 고정되어 있다. 이 또한 유연하게 만들어 더 많은 argument가 들어와도 감당할 수 있게 해준다.
 
-#### 1. Page fault가 발생하는 이유와 이를 handling하는 전반적인 과정을 서술
+#### 1. Page fault가 발생하는 이유와 이를 handling하는 전반적인 과정
    page table을 사용해 가상 메모리(ve)와 물리 메모리(pfn)을 연결시켰다. page fault가 발생했다면 가상메모리에 연결되어 있는 물리 메모리가 존재하지 않기 때문에 발생하는 것이다.
    유효한 접근인지 확인하고, 유효한 접근이라면 해당 가상주소의 vme를 찾아본다. vme의 접근이 유효하다면 handle\_\_mm_fault()를 호출해 파일 혹은 스왑페이지에 있는 걸 가져온다. 만약 vme가 null이라면 stack growth가 가능한지 확인해보고 stack growth 시킨다.
-#### 2. Disk swap 발생 시 사용한 page replacement algorithm에 대해 서술
+#### 2. Disk swap 발생 시 사용한 page replacement algorithm
    수업시간에 배운 clock algorithm을 사용했다. access bit 그리고 dirty bit를 사용한다. access bit은 처음 vme가 추가될 때 1로 세팅된다. 그리고 victim 포인터가 page를 가리키게 한다. fault가 발생하면 victim 포인터가 가리키고 있는 페이지의 access bit를 확인한다. 만약 1이라면 한 번의 기회를 더 주어 0으로 내리고 다음 페이지를 확인한다. 0 이라면 해당 페이지의 연결을 끊어주고 swap-out을 시킨다. 만약 dirty bit가 1이라면 해당 페이지는 write이 발생한 것으로 flush가 필요해, 이를 올바르게 반영시켜주고, dirty bit이 0이라면 별다른 작업 없이 swap out 해준다.
-#### 3. Stack growth 구현 시 stack 확장 여부를 판단할 수 있는 방법에 대해 서술
+#### 3. Stack growth 구현 시 stack 확장 여부를 판단할 수 있는 방법
    page fault가 발생했을 때 주어진 stack보다 큰 영역이 할당될 수 있다. pagefault()에서 find_vme()를 통해 fault가 발생한 페이지가 가상페이지가 아니였다면 이는 stack 영역의 후보고, 8MB 범위 안에 있는 올바른 영역인지 확인 후 valid하다면 stack을 확장해준다.
