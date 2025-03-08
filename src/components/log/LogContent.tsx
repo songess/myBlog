@@ -84,7 +84,7 @@ export default function LogContent({ logs }: LogContentProps) {
                               <tr
                                 key={log.id}
                                 className="hover:bg-gray-100 cursor-pointer border-b border-gray-100"
-                                onClick={() => router.push(`/log/${log.id}`)}
+                                onClick={() => router.push(`/log/${year}/${month}/${log.id}`)}
                               >
                                 <td className="py-2 px-4 text-gray-500">
                                   {dayjs(log.date).format('MM.DD')}

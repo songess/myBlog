@@ -54,7 +54,7 @@ export async function parseLog(contentPath: string): Promise<Log> {
 export const getContentPaths = (type: ContentType, category?: string) => {
   const folder = category || '**';
   const contentPaths: string[] = sync(
-    `${CONTENT_PATH}/${type}/${folder}/*.mdx`
+    `${CONTENT_PATH}/${type}/${folder}/**/*.mdx`
   );
   return contentPaths;
 };

@@ -8,10 +8,16 @@ import { parsePost } from '@/lib/parseContent';
 import dayjs from 'dayjs';
 import Image from 'next/image';
 import React from 'react';
+import { CategoryType } from '@/type/type';
 
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function Page({
+  params,
+}: {
+  params: { id: string; category: CategoryType };
+}) {
+  console.log(params);
   const BASE_PATH = BASE_POSTS_PATH;
-  const p = await parsePost(`${BASE_PATH}/${params.id}.mdx`);
+  const p = await parsePost(`${BASE_PATH}/${params.id}/${params.category}.mdx`);
 
   return (
     <>

@@ -4,9 +4,15 @@ import PostBody from '@/components/ui/PostBody';
 import { BASE_LOGS_PATH } from '@/constant/path';
 import PostIndex from '@/components/all/PostIndex';
 
-export default async function LogPage({ params }: { params: { id: string } }) {
+export default async function LogPage({
+  params,
+}: {
+  params: { id: string; year: string; month: string };
+}) {
   const BASE_PATH = BASE_LOGS_PATH;
-  const log = await parseLog(`${BASE_PATH}/${params.id}.mdx`);
+  const log = await parseLog(
+    `${BASE_PATH}/${params.year}/${params.month}/${params.id}.mdx`
+  );
 
   return (
     <div className="px-5 container mx-auto max-w-[768px] mb-[40px]">
