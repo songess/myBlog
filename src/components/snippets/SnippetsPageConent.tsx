@@ -109,9 +109,9 @@ export default function SnippetsPageContent({
                   </Button>
                 ))}
               </div>
-              <time className="text-xs text-muted-foreground mt-2 block">
+              {/* <time className="text-xs text-muted-foreground mt-2 block">
                 {dayjs(snippet.date).format('YYYY년 MM월 DD일')}
-              </time>
+              </time> */}
             </CardContent>
           </Card>
         ))}
