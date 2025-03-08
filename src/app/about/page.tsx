@@ -45,7 +45,7 @@ export default function About() {
           </div>
           <div>
             <h1 className="text-3xl font-bold mb-2">송은수</h1>
-            <p className="text-xl text-muted-foreground mb-4">FE Developer</p>
+            <p className="text-xl text-muted-foreground mb-4">Developer</p>
             <p className="text-lg mb-4">
               더 나은 사용자 경험을 제공하기 위해 노력합니다.
               <br />

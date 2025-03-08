@@ -26,7 +26,7 @@ export default function BlogPageContent({ posts }: Props) {
       .includes(search.toLowerCase());
 
     const matchesCategory =
-      category === '전체' ? post : post.category === category;
+      category === 'All' ? post : post.category === category;
 
     return matchesSearch && matchesCategory;
   });
@@ -37,7 +37,7 @@ export default function BlogPageContent({ posts }: Props) {
         defaultValue={category}
         className="mb-8 w-fit"
         onValueChange={(value) => {
-          window.location.href = `/blog?category=${value || '전체'}`;
+          window.location.href = `/blog?category=${value || 'All'}`;
         }}
         value={category}
       >
@@ -57,7 +57,7 @@ export default function BlogPageContent({ posts }: Props) {
             className="cursor-pointer animate-slideUpFade opacity-0"
             style={{ animationDelay: `${Math.floor(index / 4) * 150}ms` }}
             onClick={() => {
-              router.push(`/post/${post.id}`);
+              router.push(`/post/${post.category}/${post.id}`);
             }}
           >
             <CardContent className="p-0">
@@ -70,8 +70,13 @@ export default function BlogPageContent({ posts }: Props) {
                 />
               </div>
             </CardContent>
-            <CardFooter className="flex flex-col items-start p-4 gap-4 pt-[24px]">
-              <h3 className="font-semibold line-clamp-1">{post.title}</h3>
+            <CardFooter className="flex flex-col items-start p-4 pt-[24px]">
+              <div className="text-[24px] font-semibold line-clamp-1">
+                {post.title}
+              </div>
+              <div className="text-[12px] text-stone-400 line-clamp-1 mb-4">
+                {post.excerpt}
+              </div>
               <div className="flex items-center justify-between w-full">
                 <Badge variant="secondary">{post.category}</Badge>
                 <time className="text-sm text-muted-foreground">

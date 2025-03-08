@@ -107,7 +107,7 @@ export default function BlogHeaderContent({ search }: { search: string }) {
                 </Link>
               </li>
               <li>
-                <Link href="/blog?category=전체">
+                <Link href="/blog?category=All">
                   <Button
                     className={
                       pathname === '/blog' || pathname.startsWith('/post')
@@ -163,7 +163,7 @@ export default function BlogHeaderContent({ search }: { search: string }) {
                 value={inputValue}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
-                    window.location.href = `/blog?category=전체&search=${inputValue}`;
+                    window.location.href = `/blog?category=All&search=${inputValue}`;
                   }
                 }}
               />

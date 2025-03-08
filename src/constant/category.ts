@@ -1,5 +1,5 @@
-//CATEGORY[0]은 '전체'로 고정
-export const CATEGORY_ARR = ['전체', '운영체제', 'FE', 'CS', '일상', 'BE'] as const;
+//CATEGORY[0]은 'all'로 고정
+export const CATEGORY_ARR = ['All', 'OS', 'FE', 'CS', 'LIFE', 'BE'] as const;
 
 /**
  * CATEGORY index 찾는 용도
