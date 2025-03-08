@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Snippet } from '@/type/type';
-import dayjs from 'dayjs';
 
 export default function SnippetsPageContent({
   snippets,
