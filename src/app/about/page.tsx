@@ -81,12 +81,12 @@ export default function About() {
               <div>
                 <h3 className="text-lg font-bold p-0">CEOS Frontend Part</h3>
                 <p className="text-muted-foreground">
-                  March 2023 – August 2023
+                  March 2024 – August 2024
                 </p>
               </div>
               <div>
                 <h3 className="text-lg font-bold">Frontend Developer, TIG</h3>
-                <p className="text-muted-foreground">July 2023 – Present</p>
+                <p className="text-muted-foreground">July 2024 – Present</p>
               </div>
             </div>
           </CardContent>

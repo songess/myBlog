@@ -56,9 +56,10 @@ export default function BlogHeaderContent({ search }: { search: string }) {
   }, []);
 
   useEffect(() => {
+    console.log(window.scrollY);
     const controlNavbar = () => {
       if (typeof window !== 'undefined') {
-        if (window.scrollY > lastScrollY) {
+        if (window.scrollY > lastScrollY && window.scrollY > 100) {
           setIsVisible(false);
         } else {
           setIsVisible(true);
