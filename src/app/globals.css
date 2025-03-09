@@ -215,3 +215,15 @@ input {
   outline: none;
   box-shadow: none;
 }
+
+blockquote {
+  border-left: 4px solid hsl(var(--border));
+  padding-left: 1rem;
+  margin: 1rem 0;
+}
+
+li::before {
+  content: '•';
+  margin-right: 0.5rem;
+  color: hsl(var(--foreground));
+}
