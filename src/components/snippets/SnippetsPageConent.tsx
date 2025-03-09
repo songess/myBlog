@@ -80,10 +80,11 @@ export default function SnippetsPageContent({
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filteredSnippets.map((snippet) => (
+        {filteredSnippets.map((snippet, index) => (
           <Card
             key={snippet.id}
             className="flex flex-col cursor-pointer hover:shadow-md animate-slideUpFade"
+            style={{ animationDelay: `${Math.floor(index / 4) * 150}ms` }}
             onClick={() => {
               router.push(`/snippets/${snippet.id}`);
             }}

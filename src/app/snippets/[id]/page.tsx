@@ -27,7 +27,6 @@ export default async function Page({ params }: { params: { id: string } }) {
         </p>
       </div>
       <hr className="py-2" />
-      <PostIndex />
       <PostBody contentData={p.content} />
       <Giscus />
     </div>
