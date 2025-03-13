@@ -93,7 +93,7 @@ while(!pq.empty()){
 
 이 문제는 해당 방법으로 풀 수없지만, 다른 문제에서는 응용할 수 있을거라 생각한다.
 
-```c+
+```c++
 void dfs(int cur,vector<vector<pair<int,int>>>& graph,int distance,int masking){
     if(dp[masking][cur] != -1 && distance < dp[masking][cur]) return;
     dp[masking][cur] = distance;
@@ -156,7 +156,7 @@ while(!q.empty()){
 
 # 조합
 
-백준 15686번 문제였다.
+[백준 15686번](https://www.acmicpc.net/problem/15686) 문제였다.
 
 n개중 k를 선택해야 하는데, 이게 변수여서 미리 for문을 작성할 수 없어서 이걸 분기처리할 수도 없고 어떡하지 하다가 함수로 처리할 수 있다는 것을 알았다.
 
@@ -183,7 +183,7 @@ void johab(int cnt,vector<int> visited,int idx){
 
 # 행렬의 분할정복
 
-행렬의 제곱을 분할하는 백준 10830번. 행렬제곱을 구현했지만 분할정복을 구현하는데 어려움을 겪었다.
+행렬의 제곱을 분할하는 [백준 10830번](https://www.acmicpc.net/problem/10830). 행렬제곱을 구현했지만 분할정복을 구현하는데 어려움을 겪었다.
 
 짝수라면 `a^4 = a^2 * a^2`, 홀수라면 `a^5 = a^2 * a^2 * a`로 하면 되는건 알겠는데 행렬곱셈에 이를 어떻게 적용해야되는지 모르겠었다.
 
@@ -244,7 +244,7 @@ int dfs(int v) {
 
 # 수학문제
 
-백준 11444번. 처음으로 골드상위권 수학문제를 접했다. 분할정복인 것은 눈치챘지만 도저히 모르겠었지만, 어려운 문제를 접할때는 점화식을 찾아 관계성을 찾으면 된단다.
+[백준 11444번](https://www.acmicpc.net/problem/11444). 처음으로 골드상위권 수학문제를 접했다. 분할정복인 것은 눈치챘지만 도저히 모르겠었지만, 어려운 문제를 접할때는 점화식을 찾아 관계성을 찾으면 된단다.
 
 <img src="/png/algorithm/250222-033034.png" width="600" height="400" />
 
@@ -297,7 +297,7 @@ bool stockWorld(int y,int x, int weight){
 
 # 위상정렬
 
-백준 2252번. 순서가 배정되어서 이를 어떻게 처리하지 하면서 바이너리 트리를 만들고 이를 관리하면 어떨까? 싶었지만 트리에 없는 관계가 주어지면 트리가 여러 개가 되면서 너무 복잡해졌다.
+[백준 2252번](https://www.acmicpc.net/problem/2252). 순서가 배정되어서 이를 어떻게 처리하지 하면서 바이너리 트리를 만들고 이를 관리하면 어떨까? 싶었지만 트리에 없는 관계가 주어지면 트리가 여러 개가 되면서 너무 복잡해졌다.
 
 disjoint set을 사용하는 건 어떨까 싶었지만 집합 내 우선순위를 배정할 방법을 생각하지 못했다.
 
@@ -366,4 +366,108 @@ int dfs(int N, const vector<vector<int>> &cost_graph, int cur_node,int start,int
     }
     return dp[state][cur_node];
 }
+```
+
+# 쓰리포인터
+
+[세용액](https://www.acmicpc.net/problem/2473)문제이다. 두 용액 문제를 접근할 때는 투포인터로 풀었고, 이런 류의 문제는 이분탐색도 가능하다는 것을 알았었다.
+
+하지만 세 용액은 조금 당황해서 어떻게 할 지 모르겠었지만, 투 포인터를 고르고 랜덤으로(순회)골라 최소값을 찾으면 되지 않을까? 했지만 계속 오류가 떴다.
+
+```c++
+// 틀린 접근
+sort(v.begin(), v.end());
+long long start = 0;
+long long end = v.size() - 1;
+ans ans = {-1,-1,-1,10000000000};
+while (start < end) {
+    long long sum = v[start] + v[end];
+    for (long long i =0;i<n;i++) {
+        if (i==start || i==end) continue;
+        long long tmpSum = sum + v[i];
+        if (abs(tmpSum)<ans.sum) {
+            ...
+```
+
+순회를 내부에서 하는게 아니라, 먼저 하나를 정하고, 그 다음 수를 start로 지정하여 코드를 짜니 해결할 수 있었다.
+
+```c++
+for (long long i = 0; i < n-2; i++) {
+        long long start = i+1;
+        long long end = v.size() - 1;
+        while (start < end) {
+            ...
+```
+
+# LCS
+
+가장 긴 부분수열을 찾는문제. 처음 생각했던 방법은 2차원 dp를 만들어놓고, 일치하는 부분이 생기면 i-1,j-1크기의 배열의 가장 큰 값에 +1을 하는 방법이였는데 이 방법은 어떻게해도 n^3이 되었고,
+틀린코드임에도 구현해보고 싶어서 구현하는데 시간이 걸렸다. 그냥 존재한다면 [i-1][j-1]+1을 하고, 아닌 경우는 위, 왼쪽에서 큰 값을 가져오도록 설계하면 되었다.
+
+<br />그 부분수열을 출력해야해서 이또한 배열로 만들어서 가지고 갔는데, 터지진
+않았지만 n^3의 메모리공간을 필요로하니 터질 염려가 있었다. 증가하는 방식이
+대각선 혹은 오른쪽, 아랫쪽이기 때문에 값을 비교해가며 어디서 왔는지를
+tracking하여 이를 역순으로 출력하면 정답이였다.
+
+트랙킹하는 방식으로는 stack형식도 있지만, 재귀함수를 돌며 출력하게 할 수도 있었다.
+
+```c++
+void print(int y, int x) {
+    if (dp[y][x]==0) return;
+    if (s1[y-1] == s2[x-1]) {
+        print(y-1,x-1);
+        cout << s2[x-1]; // 후 출력
+    }
+    else dp[y-1][x] > dp[y][x-1] ? print(y-1,x) : print(y,x-1);
+}
+```
+
+# 누적합
+
+[개똥벌레](https://www.acmicpc.net/problem/3020)문제는 누적합으로 푼다는 건 알았는데 누적합이 뭔지 몰라서 나이브하게 풀었다.
+
+```c++
+for(int i=0;i<seok.size();i++){ //석순 탐색
+        if(seok[i]<curH){ // 가장 높은위치에서 시작하여 부딪히지 않으면 현재까지 부딪힌 횟수 기록하고 현재위치--
+            i--;
+            crack1[curH-1]=crackCnt;
+            curH--;
+        }
+        else if(seok[i]>=curH){ // 부딪혔다면
+            while(1){
+                if(seok[i]<curH) break; //안부딪힐때까지 그 다음으로 작은 석순 찾기
+                crackCnt++;
+                i++;
+            }
+            crack1[curH-1]=crackCnt; // 부딪힌 횟수 기록
+            curH--;
+            i--;
+        }
+    }
+    crack1[0]=crackCnt;
+```
+
+종유석에도 똑같이 적용해주면 풀렸으나, 남들에게 설명하기는 힘든 코드였다.
+
+<br /> 누적합을 사용하는 방법은 입력으로 들어오는 높이를 cnt++해주고, 높이를
+한칸 씩 올려가며 그에따른 석순의 갯수--, 종유석 갯수++을 해주는 방식이였다.
+
+```c++
+for (int i = 1; i <= N; i++) {
+        cin >> h;
+        if (i % 2) {
+            h_down[h]++; // 석순 누적합
+            cur++; // 1층에선 모든 석순과 부딪힘
+        }
+        else {
+            h_up[H - h]++; // 종유석 누적합
+        }
+    }
+
+    for (int i = 1; i <= H; i++) {
+        cnt[cur]++; // 갯수 카운트
+        if (ans > cur) ans = cur;
+        cur -= h_down[i]; // 층이 오르기 전 해당 높이의 석순 제거
+        cur += h_up[i]; // 층이 오르기 전 다음 층에서 부딪힐 종유석 추가
+    }
 ```
