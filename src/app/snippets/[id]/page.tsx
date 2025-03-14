@@ -1,5 +1,4 @@
 import Giscus from '@/components/all/Giscus';
-import PostIndex from '@/components/all/PostIndex';
 import PostBody from '@/components/ui/PostBody';
 import { Badge } from '@/components/ui/badge';
 import { BASE_SNIPPETS_PATH } from '@/constant/path';

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Github, Mail, ExternalLink } from 'lucide-react';
 
 export default function About() {
-  const skills = ['React', 'Next.js', 'TypeScript', 'TailwindCSS', 'C', 'C++'];
+  const skills = ['React', 'Next.js', 'TypeScript', 'TailwindCSS', 'C', 'C++', 'Java'];
 
   const projects = [
     {

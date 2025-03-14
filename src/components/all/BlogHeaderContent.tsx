@@ -93,7 +93,7 @@ export default function BlogHeaderContent({ search }: { search: string }) {
           </Link>
           <nav>
             <ul className="flex">
-              <li>
+              <div>
                 <Link href="/about">
                   <Button
                     className={
@@ -106,8 +106,8 @@ export default function BlogHeaderContent({ search }: { search: string }) {
                     About
                   </Button>
                 </Link>
-              </li>
-              <li>
+              </div>
+              <div>
                 <Link href="/blog?category=All">
                   <Button
                     className={
@@ -120,8 +120,8 @@ export default function BlogHeaderContent({ search }: { search: string }) {
                     Blog
                   </Button>
                 </Link>
-              </li>
-              <li>
+              </div>
+              <div>
                 <Link href="/snippets">
                   <Button
                     className={
@@ -134,8 +134,8 @@ export default function BlogHeaderContent({ search }: { search: string }) {
                     Snippets
                   </Button>
                 </Link>
-              </li>
-              <li>
+              </div>
+              <div>
                 <Link href="/log">
                   <Button
                     className={
@@ -148,7 +148,7 @@ export default function BlogHeaderContent({ search }: { search: string }) {
                     Log
                   </Button>
                 </Link>
-              </li>
+              </div>
             </ul>
           </nav>
         </div>

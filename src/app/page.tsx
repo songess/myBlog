@@ -31,11 +31,11 @@ export default async function Page() {
             <Link key={index} href={`/post/${post.category}/${post.id}`}>
               <Card key={index} className="cursor-pointer">
                 <CardContent className="p-0">
-                  <div className="relative overflow-hidden h-[192px] w-full">
+                  <div className="relative overflow-hidden h-[192px] w-full rounded-xl">
                     <Image
                       src={post.image}
                       alt="썸네일"
-                      className="object-cover transform transition-transform duration-300 hover:scale-105"
+                      className="object-cover transform transition-transform duration-300 hover:scale-105 w-full"
                       fill
                     />
                   </div>
