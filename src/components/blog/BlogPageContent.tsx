@@ -61,7 +61,7 @@ export default function BlogPageContent({ posts }: Props) {
             }}
           >
             <CardContent className="p-0">
-              <div className="relative overflow-hidden h-[192px] w-full rounded-xl">
+              <div className="relative overflow-hidden h-[192px] w-full rounded-t-xl">
                 <Image
                   src={post.image}
                   alt="썸네일"
