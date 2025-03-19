@@ -1,0 +1,47 @@
+---
+id: opensource
+title: 오픈소스 스니펫
+date: 2025-03-20
+tags:
+  - class
+---
+
+# 로컬서버에서 환경구동하기
+
+```shell
+$ cd [파일경로]
+$ pip install fastapi uvicorn
+$ uvicorn main:app --reload
+```
+
+# 리눅스에서 환경 구동하기
+
+#### git 설치
+
+```shell
+$ sudo apt update
+$ sudo apt install -y git
+$ git --version
+```
+
+#### 가상환경 설치
+
+```shell
+$ sudo apt install -y python3 python3-venv python3-pip
+$ python3 -m venv myenv
+$ source myenv/bin/activate
+# 추후 끌때는
+$ deactivate
+```
+
+#### 서버 실행하기
+
+```shell
+$ cd FastApi_Todos/
+$ uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+주의할 점은 0.0.0.0을 입력해야 하는 것, 입력받은 포트를 입력하는 것이 아니라는 것!
+
+<img src="/png/opensource/250320-001615.png" width={600} height={200} />
+ubuntu옆에 써있는 IP주소는 내꺼가 아니니깐 주의해야한다.
