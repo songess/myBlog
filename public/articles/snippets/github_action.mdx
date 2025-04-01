@@ -1,0 +1,75 @@
+---
+id: github_action
+title: 깃허브 organization 자동배포
+date: 2025-04-01
+tags: 
+  - CI/CD
+  - GithubAction
+---
+
+# Github Action
+사이드프로젝트를 하다보면 `organization`으로 프로젝트를 진행한다. 난 주로 `vercel`을 사용해 배포하는데 `organization`을 사용해 배포를 하게되면 돈이든다.
+무료로 사용하기 위해선 개인레포로 `fork`해온 후 사용해야 하는데 매번 푸시를 할 때마다 포크해오는 것은 귀찮기 때문에 자동화를 하는 것이 간편하다.
+자동화를 하는 방법은 `GithubAction`을 활용하는 것이다. 다음 절차를 따라가면 배포할 수 있다.
+
+## 내 계정으로 `fork`한 후 배포
+배포하고자 하는 조직레포를 내 계정으로 포크한다. 이후 vercel에 들어가 배포해준다. 
+
+## 토큰 발급
+나의 프로필에서 `Settings` - `Developer settings` - `Personal access tokens` - `Tokens (classic)` - `Generate new token` - `(classic)`
+들어가서 `repo` 체크박스를 선택하고 토큰을 발급받는다.
+
+## 토큰 등록
+조직레포의 `Settings` - `Secrets and variables` - `Actions` - `Repository secrets`
+들어가서 `New repository secret`을 등록하고 EMAIL, SECRET_TOKEN을 등록해준다.
+이메일은 내 github이메일, 토큰은 방금 발급받은 토큰을 입력한다.
+
+## organization 레포에 파일 생성
+
+```shell
+## /build.sh
+
+#!/bin/sh
+cd ../
+mkdir output
+cp -R ./<organization_repo_name>/* ./output
+cp -R ./output ./<organization_repo_name>/
+```
+
+```shell
+## .github/workflows/deploy.yml
+
+name: git push into another repo to deploy to vercel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: pandoc/latex
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install mustache (to update the date)
+        run: apk add ruby && gem install mustache
+      - name: creates output
+        run: sh ./build.sh
+      - name: Pushes to another repository
+        id: push_directory
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.<SECRET_TOKEN> }}
+        with:
+          source-directory: 'output'
+          destination-github-username: <username> 
+          destination-repository-name: <fork_repo_name>
+          user-email: ${{ secrets.<EMAIL> }} 
+          commit-message: ${{ github.event.commits[0].message }}
+          target-branch: main
+      - name: Test get variable exported by push-to-another-repository
+        run: echo $DESTINATION_CLONED_DIRECTORY
+```
+
+이렇게 하면 organization의 main브랜치에 push가 발생하면 자동으로 fork한 레포지토리로 pull을 해와 배포를 해준다.
